@@ -6,6 +6,7 @@
 #include <time.h>
 #include <assert.h>
 #include "galaxy.h"
+#include "io.h"
 
 const char O_NONE = '?';
 const char O_AI = '@';
@@ -16,7 +17,7 @@ const char O_HUMAN = '*';
  */
 Galaxy* galaxy_create()
 {
-    Galaxy *galaxy = malloc(sizeof(Galaxy));
+    Galaxy* galaxy = malloc(sizeof(Galaxy));
     if (!galaxy) {
         MALLOC_ERROR(__func__);
         exit(EXIT_FAILURE);
@@ -42,6 +43,7 @@ Galaxy* galaxy_create()
     galaxy->turn = 0;
     galaxy->home_a = NULL;
     galaxy->home_h = NULL;
+    galaxy->display = galaxy_display;
 
     return galaxy;
 }
@@ -61,20 +63,18 @@ unsigned short int random_number(unsigned short int min, unsigned short int max)
  */
 void galaxy_initialize(Galaxy* galaxy)
 {
-    unsigned short int i, j;
-    double random;
-    Vector *planets = vector_create();
+    Vector* planets = vector_create();
 
     srand((unsigned int) time(NULL));
 
-    for (i = 0; i < SIZE; i++)
-        for (j = 0; j < SIZE; j++) {
+    for (unsigned short i = 0; i < SIZE; i++)
+        for (unsigned short int j = 0; j < SIZE; j++) {
             Sector* sector = &galaxy->sectors[i][j];
             sector->explored_h = sector->explored_a = false;
             sector->x = i;
             sector->y = j;
 
-            random = (double)rand() / RAND_MAX;
+            double random = (double)rand() / RAND_MAX;
             if (random <= PLANET_PROB) {
                 sector->has_planet = true;
                 vector_add(planets, sector);
@@ -119,6 +119,9 @@ void home_planets_initialize(Galaxy* galaxy, Vector* planets)
 
     ((Sector*) planets->data[h_home])->planet.owner = O_HUMAN;
     ((Sector*) planets->data[a_home])->planet.owner = O_AI;
+
+    ((Sector*) planets->data[h_home])->explored_h = true;
+    ((Sector*) planets->data[a_home])->explored_a = true;
 }
 
 /*

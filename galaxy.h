@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "lib/vector.h"
+#include "planet.h"
 
 #define MALLOC_ERROR(x) fprintf(stderr, "%s: insufficient memory\n", (x))
 
@@ -20,12 +20,6 @@
 extern const char O_NONE;     // symbol associated to unowned sectors
 extern const char O_AI;       // symbol associated to sectors owned by the AI player
 extern const char O_HUMAN;    // symbol associated to sectors owned by the human player
-
-typedef struct {
-    char owner;
-    unsigned short int res_per_turn; // resources generated at every turn
-    unsigned short int res_total;    // total resources available on the planet
-} Planet;
 
 typedef struct {
     unsigned short int x;           // x-coordinate of the sector in the galaxy

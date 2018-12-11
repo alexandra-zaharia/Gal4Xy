@@ -5,20 +5,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
+#include "lib/vector.h"
 #include "galaxy.h"
+#include "utils.h"
 #include "io.h"
 
 const char O_NONE = '?';
 const char O_AI = '@';
 const char O_HUMAN = '*';
-
-/*
- * Returns a random (unsigned short) integer between min and max, inclusive.
- */
-unsigned short int random_number(unsigned short int min, unsigned short int max)
-{
-    return (unsigned short int)(min + rand() % (max - min + 1));
-}
 
 
 /*

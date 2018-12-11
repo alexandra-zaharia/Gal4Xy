@@ -44,18 +44,16 @@ typedef struct {
 typedef struct Galaxy Galaxy;
 struct Galaxy {
     Sector** sectors;
-    bool game_over;           // has the galaxy been conquered?
-    unsigned int turn;        // current turn
-    Sector* home_h;           // sector of the human home planet
-    Sector* home_a;           // sector of the AI home planet
+    bool game_over;              // has the galaxy been conquered?
+    unsigned int turn;           // current turn
+    Sector* home_h;              // sector of the human home planet
+    Sector* home_a;              // sector of the AI home planet
 
-    void (*display)(Galaxy*); // display the galaxy
+    void (*initialize)(Galaxy*); // initializes the galaxy
+    void (*display)(Galaxy*);    // display the galaxy
+    void (*destroy)(Galaxy*);    // frees the galaxy
 };
 
 Galaxy* galaxy_create();
-void galaxy_initialize(Galaxy*);
-void planet_initialize(Sector*);
-void home_planets_initialize(Galaxy*, Vector*);
-void galaxy_free(Galaxy*);
 
 #endif // galaxy.h

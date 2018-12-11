@@ -8,13 +8,13 @@
 int main()
 {
     Galaxy* galaxy = galaxy_create();
-    galaxy_initialize(galaxy);
+    galaxy->initialize(galaxy);
     printf(BOLDGREEN "Human (%c) home planet: (%u, %u)\n" RESET,
             galaxy->home_h->planet.owner, galaxy->home_h->x, galaxy->home_h->y);
     printf(BOLDRED "AI (%c) home planet: (%u, %u)\n" RESET,
             galaxy->home_a->planet.owner, galaxy->home_a->x, galaxy->home_a->y);
     galaxy->display(galaxy);
-    galaxy_free(galaxy);
+    galaxy->destroy(galaxy);
 
     return EXIT_SUCCESS;
 }

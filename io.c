@@ -48,9 +48,6 @@ void display_separator()
 
 void display_sectors(Galaxy* galaxy)
 {
-    display_indexes();
-    display_separator();
-
     for (unsigned short int i = 0; i < SIZE; i++) {
         for (unsigned short int j = 0; j < SIZE; j++) {
             if (j == 0)
@@ -75,5 +72,7 @@ void galaxy_display(Galaxy* galaxy)
 {
     display_greeting(galaxy);
     log_turn(galaxy);
+    display_indexes();
+    display_separator();
     display_sectors(galaxy);
 }

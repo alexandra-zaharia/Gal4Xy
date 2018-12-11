@@ -53,7 +53,7 @@ void display_sectors(Galaxy* galaxy)
             if (j == 0)
                 printf(" %hu |", i);
             char symbol = galaxy->sectors[i][j].explored_h ? galaxy->sectors[i][j].has_planet
-                          ? galaxy->sectors[i][j].planet.owner : (char) ' '
+                          ? galaxy->sectors[i][j].planet->owner : (char) ' '
                           : (char) '?';
             char* bold_prefix = "";
             char* bold_suffix = "";

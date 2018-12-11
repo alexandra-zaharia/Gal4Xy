@@ -16,17 +16,6 @@ const char O_HUMAN = '*';
 
 
 /*
- * Initializes the planet in the given sector.
- */
-void planet_initialize(Sector* sector)
-{
-    assert(sector->has_planet);
-    sector->planet.owner = O_NONE;
-    sector->planet.res_per_turn = (unsigned short int)(UNIT_COST / 10 * (1 + rand() % 10));
-    sector->planet.res_total = 0;
-}
-
-/*
  * Determines the two home planets (for the human and AI players) in the galaxy.
  */
 void home_planets_initialize(Galaxy* galaxy, Vector* planets)
@@ -42,8 +31,8 @@ void home_planets_initialize(Galaxy* galaxy, Vector* planets)
     galaxy->home_h = planets->data[h_home];
     galaxy->home_a = planets->data[a_home];
 
-    ((Sector*) planets->data[h_home])->planet.owner = O_HUMAN;
-    ((Sector*) planets->data[a_home])->planet.owner = O_AI;
+    ((Sector*) planets->data[h_home])->planet->owner = O_HUMAN;
+    ((Sector*) planets->data[a_home])->planet->owner = O_AI;
 
     ((Sector*) planets->data[h_home])->explored_h = true;
     ((Sector*) planets->data[a_home])->explored_a = true;
@@ -71,7 +60,7 @@ void galaxy_initialize(Galaxy* galaxy)
             if (random <= PLANET_PROB) {
                 sector->has_planet = true;
                 vector_add(planets, sector);
-                planet_initialize(sector);
+                sector->planet = planet_create();
             } else {
                 sector->has_planet = false;
                 sector->res_bonus = (unsigned short int)
@@ -88,6 +77,14 @@ void galaxy_initialize(Galaxy* galaxy)
  */
 void galaxy_free(Galaxy* galaxy)
 {
+    if (!galaxy) return;
+
+    for (int i = 0; i < SIZE; i++)
+        for (int j = 0; j < SIZE; j++)
+            if (galaxy->sectors[i][j].has_planet) {
+                Planet* planet = galaxy->sectors[i][j].planet;
+                planet->destroy(planet);
+            }
     for (int i = 0; i < SIZE; i++)
         free(galaxy->sectors[i]);
     free(galaxy->sectors);

@@ -5,10 +5,15 @@
 #ifndef GAL4XY_PLANET_H
 #define GAL4XY_PLANET_H
 
-typedef struct {
-    char owner;
+typedef struct Planet Planet;
+struct Planet {
+    char owner;                      // symbol for planet owner
     unsigned short int res_per_turn; // resources generated at every turn
     unsigned short int res_total;    // total resources available on the planet
-} Planet;
+
+    void (*destroy)(Planet*);        // frees the planet
+};
+
+Planet* planet_create();
 
 #endif //GAL4XY_PLANET_H

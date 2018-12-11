@@ -12,4 +12,4 @@ add_executable(Gal4Xy main.c
         utils.h utils.c
         lib/vector.c
         io.h io.c
-        planet.h)
+        planet.h planet.c)

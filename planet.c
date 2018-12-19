@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "planet.h"
 #include "galaxy.h"
+#include "utils.h"
 
 void planet_free(Planet* planet)
 {

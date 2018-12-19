@@ -6,10 +6,7 @@
 #define GAL4XY_GALAXY_H
 
 #include <stdbool.h>
-#include <stdio.h>
 #include "planet.h"
-
-#define MALLOC_ERROR(x) fprintf(stderr, "%s: insufficient memory\n", (x))
 
 #define SIZE 10            // galaxy size is SIZE x SIZE
 #define PLANET_PROB 0.25   // probability for a sector to contain a planet

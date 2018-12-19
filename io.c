@@ -62,8 +62,10 @@ void find_planets()
     printf("%s: not implemented\n", __func__);
 }
 
+void cheat(Galaxy*);
 
-void prompt(Galaxy* galaxy) {
+void prompt(Galaxy* galaxy)
+{
     char option;
 
     do {
@@ -77,6 +79,8 @@ void prompt(Galaxy* galaxy) {
         printf("What would you like to do? ");
         option = s_getc();
         switch (option) {
+            case 'c':
+            case 'C': cheat(galaxy); break;
             case 'm':
             case 'M': prompt_move_ships(); break;
             case 'f':
@@ -108,12 +112,16 @@ void prompt(Galaxy* galaxy) {
 }
 
 
-void display_greeting(Galaxy* galaxy)
+void display_greeting(Galaxy* galaxy, bool cheat)
 {
     if (galaxy->turn == 0) {
         int len_greeting = printf(
                 BOLDWHITE "Welcome to this galaxy! Your home planet is in sector "
                 BOLDGREEN "(%u, %u)" BOLDWHITE ".\n" RESET, galaxy->home_h->x, galaxy->home_h->y);
+        if (cheat) {
+            printf("The AI home planet is in sector "
+                   BOLDRED "(%u, %u)" BOLDWHITE ".\n" RESET, galaxy->home_a->x, galaxy->home_a->y);
+        }
         len_greeting -= 2 * strlen(BOLDWHITE) + strlen(BOLDGREEN) + strlen(RESET);
         for (int i = 0; i < len_greeting - 1; i++)
             printf("=");
@@ -152,22 +160,38 @@ void display_separator()
 }
 
 
-void display_sectors(Galaxy* galaxy)
+void display_sectors(Galaxy* galaxy, bool cheat)
 {
     for (unsigned short int i = 0; i < SIZE; i++) {
         for (unsigned short int j = 0; j < SIZE; j++) {
             if (j == 0)
                 printf(" %hu |", i);
-            char symbol = galaxy->sectors[i][j].explored_h ? galaxy->sectors[i][j].has_planet
-                          ? galaxy->sectors[i][j].planet->owner : (char) ' '
-                          : (char) '?';
-            char* bold_prefix = "";
-            char* bold_suffix = "";
-            if (galaxy->sectors[i][j].explored_h) {
-                bold_prefix = BOLDGREEN;
-                bold_suffix = RESET;
+            char symbol;
+            char* color_prefix = "";
+            char* color_suffix = "";
+            if (cheat) {
+                symbol = galaxy->sectors[i][j].has_planet
+                    ? galaxy->sectors[i][j].planet->owner
+                    : (char) ' ';
+                if (symbol == O_AI) {
+                    color_prefix = BOLDRED;
+                    color_suffix = RESET;
+                } else if (symbol == O_NONE) {
+                    color_prefix = YELLOW;
+                    color_suffix = RESET;
+                }
+            } else {
+                symbol = galaxy->sectors[i][j].explored_h
+                    ? galaxy->sectors[i][j].has_planet
+                        ? O_HUMAN
+                        : (char) ' '
+                    : O_NONE;
             }
-            printf(" %s%c%s |", bold_prefix, symbol, bold_suffix);
+            if (galaxy->sectors[i][j].explored_h) {
+                color_prefix = BOLDGREEN;
+                color_suffix = RESET;
+            }
+            printf(" %s%c%s |", color_prefix, symbol, color_suffix);
         }
         printf("\n");
         display_separator();
@@ -177,9 +201,18 @@ void display_sectors(Galaxy* galaxy)
 
 void galaxy_display(Galaxy* galaxy)
 {
-    display_greeting(galaxy);
+    display_greeting(galaxy, false);
     log_turn(galaxy);
     display_indexes();
     display_separator();
-    display_sectors(galaxy);
+    display_sectors(galaxy, false);
+}
+
+void cheat(Galaxy *galaxy)
+{
+    display_greeting(galaxy, true);
+    log_turn(galaxy);
+    display_indexes();
+    display_separator();
+    display_sectors(galaxy, true);
 }

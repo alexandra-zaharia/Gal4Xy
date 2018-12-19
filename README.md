@@ -7,4 +7,6 @@ A turn-based 4X game where you play against the computer to conquer the galaxy
 
   * The galaxy and planets are initialized, and home planets are randomly chosen for the human and AI players.
   * The galaxy may be displayed for the human player.
+  * The galaxy may be displayed in "cheat" mode (all planets are visible).
   * The main game loop. 
+

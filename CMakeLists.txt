@@ -5,11 +5,12 @@ set(CMAKE_C_STANDARD 11)
 set(GCC_COVERAGE_COMPILE_FLAGS "-g -Wall -Wextra -Wpedantic")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 
-include_directories(lib)
+include_directories(include lib)
 
 add_executable(Gal4Xy main.c
-        galaxy.h galaxy.c
-        utils.h utils.c
-        lib/vector.c
-        io.h io.c
-        planet.h planet.c)
+        galaxy.c
+        utils.c
+        io.c
+        planet.c)
+
+target_link_libraries(Gal4Xy ${CMAKE_SOURCE_DIR}/lib/libgcds.a)

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
-#include "lib/vector.h"
+#include "include/vector.h"
 #include "galaxy.h"
 #include "utils.h"
 #include "io.h"
@@ -23,9 +23,9 @@ void home_planets_initialize(Galaxy* galaxy, Vector* planets)
     unsigned short int h_home;
     unsigned short int a_home;
 
-    h_home = random_number(0, (unsigned short int)(planets->count - 1));
+    h_home = random_number(0, (unsigned short int)(planets->size - 1));
     do {
-        a_home = random_number(0, (unsigned short int)(planets->count - 1));
+        a_home = random_number(0, (unsigned short int)(planets->size - 1));
     } while (h_home == a_home);
 
     galaxy->home_h = planets->data[h_home];
@@ -59,7 +59,7 @@ void galaxy_initialize(Galaxy* galaxy)
             double random = (double)rand() / RAND_MAX;
             if (random <= PLANET_PROB) {
                 sector->has_planet = true;
-                vector_add(planets, sector);
+                planets->add(planets, sector);
                 sector->planet = planet_create();
             } else {
                 sector->has_planet = false;
@@ -69,7 +69,7 @@ void galaxy_initialize(Galaxy* galaxy)
         }
 
     home_planets_initialize(galaxy, planets);
-    vector_free(planets);
+    planets->free(planets);
 }
 
 /*

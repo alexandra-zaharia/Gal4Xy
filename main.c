@@ -14,7 +14,7 @@ void initialize_sectors(Galaxy* galaxy, Vector* players)
         for (unsigned int j = 0; j < SIZE; j++) {
             Sector* sector = &galaxy->sectors[i][j];
             for (unsigned int k = 0; k < players->size; k++) {
-//                sector->explored->add(sector->explored, false);
+                sector->explored->add(sector->explored, false);
             }
         }
 }

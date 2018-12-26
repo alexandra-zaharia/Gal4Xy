@@ -54,8 +54,8 @@ void home_planets_initialize(Galaxy* galaxy, Vector* planets)
         home_planet->owner = player->symbol;
         printf("Assigned %c to planet in %hu, %hu\n",
                 home_planet->owner, home_planet->x, home_planet->y);
-//        Sector* sector = &galaxy->sectors[home_planet->x][home_planet->y];
-//        sector->explored->data[i] = (void*) true;
+        Sector* sector = &galaxy->sectors[home_planet->x][home_planet->y];
+        sector->explored->data[i] = (void*) true;
     }
 }
 
@@ -74,13 +74,12 @@ void galaxy_initialize(Galaxy* galaxy)
         for (unsigned short int j = 0; j < SIZE; j++) {
             Sector* sector = &galaxy->sectors[i][j];
             sector->explored_h = sector->explored_a = false;
-//            sector->explored = vector_create();
-//            if (!sector->explored) {
-//                MALLOC_ERROR(__func__);
-//                galaxy->destroy(galaxy);
-//                exit(EXIT_FAILURE);
-//            }
-            //sector->explored_h = sector->explored_a = false;
+            sector->explored = vector_create();
+            if (!sector->explored) {
+                MALLOC_ERROR(__func__);
+                galaxy->destroy(galaxy);
+                exit(EXIT_FAILURE);
+            }
             sector->x = i;
             sector->y = j;
 
@@ -108,12 +107,13 @@ void galaxy_free(Galaxy* galaxy)
     if (!galaxy) return;
 
     for (int i = 0; i < SIZE; i++)
-        for (int j = 0; j < SIZE; j++)
+        for (int j = 0; j < SIZE; j++) {
+            Sector *sector = &galaxy->sectors[i][j];
+            sector->explored->free(sector->explored);
             if (galaxy->sectors[i][j].has_planet) {
-                Sector* sector = &galaxy->sectors[i][j];
                 sector->planet->destroy(sector->planet);
-//                sector->explored->free(sector->explored);
             }
+        }
 
     for (int i = 0; i < SIZE; i++)
         free(galaxy->sectors[i]);

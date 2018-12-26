@@ -23,7 +23,7 @@ typedef struct {
     unsigned short int x;  // x-coordinate of the sector in the galaxy
     unsigned short int y;  // y-coordinate of the sector in the galaxy
 
-//    Vector* explored;      // has this sector been explored by the players?
+    Vector* explored;      // has this sector been explored by the players?
     bool explored_h;       // has this sector been explored by the human player?
     bool explored_a;       // has this sector been explored by the AI player?
 

@@ -7,6 +7,8 @@
 
 typedef struct Planet Planet;
 struct Planet {
+    unsigned short int x;            // x-coordinate of this planet's sector in the galaxy
+    unsigned short int y;            // y-coordinate of the planet's sector in the galaxy
     char owner;                      // symbol for planet owner
     unsigned short int res_per_turn; // resources generated at every turn
     unsigned short int res_total;    // total resources available on the planet
@@ -14,6 +16,6 @@ struct Planet {
     void (*destroy)(Planet*);        // frees the planet
 };
 
-Planet* planet_create();
+Planet* planet_create(unsigned short int, unsigned short int);
 
 #endif //GAL4XY_PLANET_H

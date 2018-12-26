@@ -12,7 +12,7 @@ void planet_free(Planet* planet)
     if (planet) free(planet);
 }
 
-Planet* planet_create()
+Planet* planet_create(unsigned short int x, unsigned short int y)
 {
     Planet* planet = malloc(sizeof(Planet));
     if (!planet) {
@@ -20,6 +20,8 @@ Planet* planet_create()
         exit(EXIT_FAILURE);
     }
     planet->owner = O_NONE;
+    planet->x = x;
+    planet->y = y;
     planet->res_per_turn = (unsigned short int)(UNIT_COST / 10 * (1 + rand() % 10));
     planet->res_total = 0;
 

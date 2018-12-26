@@ -6,10 +6,11 @@
 #define GAL4XY_IO_H
 
 #include "galaxy.h"
+#include "player.h"
 
 char* s_gets(char*, int);
 char s_getc();
-void prompt(Galaxy*);
+void prompt(Player*, Galaxy*);
 
 void galaxy_display(Galaxy*);
 

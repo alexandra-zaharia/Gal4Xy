@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "galaxy.h"
 #include "color.h"
+#include "io.h"
 
 /*
  * Reads at most n characters (newline included) into str. If present, the newline is removed.
@@ -64,7 +65,7 @@ void find_planets()
 
 void cheat(Galaxy*);
 
-void prompt(Galaxy* galaxy)
+void prompt(Player* player, Galaxy* galaxy)
 {
     char option;
 
@@ -100,13 +101,12 @@ void prompt(Galaxy* galaxy)
                     quit = s_getc();
                 }
                 if (quit == 'y' || quit == 'Y') {
-                    galaxy->destroy(galaxy);
-                    exit(EXIT_SUCCESS);
+                    galaxy->game_over = true;
                 }
             }; break;
             default: printf("Invalid option '%c'\n", option);
         }
-    } while (option != 't' && option != 'T');
+    } while (option != 't' && option != 'T' && option != 'q' && option != 'Q');
 
     printf("\n");
 }
@@ -115,12 +115,16 @@ void prompt(Galaxy* galaxy)
 void display_greeting(Galaxy* galaxy, bool cheat)
 {
     if (galaxy->turn == 0) {
+        Player* human = (Player*) galaxy->players->data[0];
         int len_greeting = printf(
                 BOLDWHITE "Welcome to this galaxy! Your home planet is in sector "
-                BOLDGREEN "(%u, %u)" BOLDWHITE ".\n" RESET, galaxy->home_h->x, galaxy->home_h->y);
+                BOLDGREEN "(%u, %u)" BOLDWHITE ".\n" RESET, //galaxy->home_h->x, galaxy->home_h->y);
+                human->home_planet(human)->x, human->home_planet(human)->y);
         if (cheat) {
+            Player* ai = (Player*) galaxy->players->data[1];
             printf("The AI home planet is in sector "
-                   BOLDRED "(%u, %u)" BOLDWHITE ".\n" RESET, galaxy->home_a->x, galaxy->home_a->y);
+                   BOLDRED "(%u, %u)" BOLDWHITE ".\n" RESET,
+                   ai->home_planet(ai)->x, ai->home_planet(ai)->y);
         }
         len_greeting -= 2 * strlen(BOLDWHITE) + strlen(BOLDGREEN) + strlen(RESET);
         for (int i = 0; i < len_greeting - 1; i++)
@@ -181,13 +185,13 @@ void display_sectors(Galaxy* galaxy, bool cheat)
                     color_suffix = RESET;
                 }
             } else {
-                symbol = galaxy->sectors[i][j].explored_h
+                symbol = galaxy->sectors[i][j].explored_h//->data[0]
                     ? galaxy->sectors[i][j].has_planet
                         ? O_HUMAN
                         : (char) ' '
                     : O_NONE;
             }
-            if (galaxy->sectors[i][j].explored_h) {
+            if (galaxy->sectors[i][j].explored_h) {//->data[0]) {
                 color_prefix = BOLDGREEN;
                 color_suffix = RESET;
             }

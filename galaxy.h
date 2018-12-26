@@ -6,6 +6,7 @@
 #define GAL4XY_GALAXY_H
 
 #include <stdbool.h>
+#include "include/vector.h"
 #include "planet.h"
 
 #define SIZE 10            // galaxy size is SIZE x SIZE
@@ -22,6 +23,7 @@ typedef struct {
     unsigned short int x;  // x-coordinate of the sector in the galaxy
     unsigned short int y;  // y-coordinate of the sector in the galaxy
 
+//    Vector* explored;      // has this sector been explored by the players?
     bool explored_h;       // has this sector been explored by the human player?
     bool explored_a;       // has this sector been explored by the AI player?
 
@@ -35,10 +37,10 @@ typedef struct {
 typedef struct Galaxy Galaxy;
 struct Galaxy {
     Sector** sectors;
+    Vector* players;
+
     bool game_over;              // has the galaxy been conquered?
     unsigned int turn;           // current turn
-    Sector* home_h;              // sector of the human home planet
-    Sector* home_a;              // sector of the AI home planet
 
     void (*initialize)(Galaxy*); // initializes the galaxy
     void (*display)(Galaxy*);    // display the galaxy

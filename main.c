@@ -10,14 +10,14 @@
 
 int main()
 {
+    Player* human = player_create('*', BOLDGREEN);
+    Player* ai = player_create('@', BOLDRED);
+
     Vector* players = vector_create();
     if (!players) {
         fprintf(stderr, "Cannot create players\n");
         exit(EXIT_FAILURE);
     }
-
-    Player* human = player_create('*');
-    Player* ai = player_create('@');
     players->add(players, human);
     players->add(players, ai);
 

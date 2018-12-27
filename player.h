@@ -7,11 +7,13 @@
 
 #include "include/linked_list.h"
 #include "galaxy.h"
+#include "color.h"
 
 typedef struct Player Player;
 
 struct Player {
     char symbol;                     // symbol associated to the player
+    char* color;                     // player color for galaxy display
     LinkedList* planets;             // list of planets owned by the player
     LinkedList* fleets;              // list of fleets owned by the player
 
@@ -21,6 +23,6 @@ struct Player {
     void (*destroy)(Player*);        // frees the player
 };
 
-Player* player_create(char symbol);
+Player* player_create(char symbol, char* color);
 
 #endif //GAL4XY_PLAYER_H

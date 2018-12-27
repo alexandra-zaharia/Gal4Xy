@@ -16,8 +16,6 @@
 #define UNIT_COST 1000     // cost (in resources) for one fleet unit
 
 extern const char O_NONE;  // symbol associated to unowned sectors
-extern const char O_AI;    // symbol associated to sectors owned by the AI player
-extern const char O_HUMAN; // symbol associated to sectors owned by the human player
 
 typedef struct {
     unsigned short int x;  // x-coordinate of the sector in the galaxy

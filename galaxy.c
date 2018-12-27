@@ -11,8 +11,6 @@
 #include "io.h"
 
 const char O_NONE = '?';
-const char O_AI = '@';
-const char O_HUMAN = '*';
 
 /*
  * Determines whether an array of unspecified size contains the specified value before a given

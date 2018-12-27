@@ -3,15 +3,18 @@
 //
 
 #include <stdlib.h>
+#include <string.h>
 #include "planet.h"
 #include "utils.h"
 #include "player.h"
+
 
 Planet* get_player_home_planet(Player* player)
 {
     if (!player->planets || !player->planets->head) return NULL;
     return (Planet*) player->planets->head->data;
 }
+
 
 void player_free(Player* player)
 {
@@ -22,8 +25,26 @@ void player_free(Player* player)
     free(player);
 }
 
-Player* player_create(char symbol)
+/*
+ * Determines whether the specified color is a valid color for a player. YELLOW is reserved for '?'
+ * in cheat mode, and (BOLD)WHITE and (BOLD)BLACK are reserved for console display.
+ */
+bool is_color_valid(char* color)
 {
+    return !strcmp(color, RED) || !strcmp(color, GREEN)
+        || !strcmp(color, BLUE) || !strcmp(color, MAGENTA) || !strcmp(color, CYAN)
+        || !strcmp(color, BOLDRED) || !strcmp(color, BOLDGREEN) || !strcmp(color, BOLDYELLOW)
+        || !strcmp(color, BOLDBLUE) || !strcmp(color, BOLDMAGENTA) || !strcmp(color, BOLDCYAN);
+}
+
+
+Player* player_create(char symbol, char* color)
+{
+    if (!is_color_valid(color)) {
+        fprintf(stderr, "%s: invalid color (%s)\n", __func__, color);
+        exit(EXIT_FAILURE);
+    }
+
     Player* player = malloc(sizeof(Player));
     if (!player) {
         MALLOC_ERROR(__func__);
@@ -31,6 +52,7 @@ Player* player_create(char symbol)
     }
 
     player->symbol = symbol;
+    player->color = color;
 
     player->planets = linked_list_create();
     if (!player->planets) {

@@ -179,25 +179,22 @@ void display_sectors(Galaxy* galaxy, bool cheat)
                 if (sector->has_planet) {
                     if (sector->planet->owner) {
                         symbol = sector->planet->owner->symbol;
-                        if (symbol == O_AI) {
-                            color_prefix = BOLDRED;
-                            color_suffix = RESET;
-                        }
+                        color_prefix = sector->planet->owner->color;
                     } else {
                         symbol = O_NONE;
                         color_prefix = YELLOW;
-                        color_suffix = RESET;
                     }
+                    color_suffix = RESET;
                 } else {
                     symbol = (char) ' ';
                 }
             } else {
                 symbol = (bool) sector->explored->data[0]
-                        ? sector->has_planet ? O_HUMAN : (char) ' '
+                        ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
                         : O_NONE;
             }
             if (sector->explored->data[0]) {
-                color_prefix = BOLDGREEN;
+                color_prefix = sector->planet->owner->color;
                 color_suffix = RESET;
             }
             printf(" %s%c%s |", color_prefix, symbol, color_suffix);

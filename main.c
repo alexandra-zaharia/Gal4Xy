@@ -10,8 +10,20 @@
 
 int main()
 {
+    Galaxy* galaxy = galaxy_create();
+    if (!galaxy) exit(EXIT_FAILURE);
+
     Player* human = player_create('*', BOLDGREEN); // the human player must be the first one
+    if (!human) {
+        galaxy->destroy(galaxy);
+        exit(EXIT_FAILURE);
+    }
     Player* ai = player_create('@', BOLDRED);
+    if (!ai) {
+        human->destroy(human);
+        galaxy->destroy(galaxy);
+        exit(EXIT_FAILURE);
+    }
 
     Vector* players = vector_create();
     if (!players) {
@@ -21,8 +33,10 @@ int main()
     players->add(players, human);
     players->add(players, ai);
 
-    Galaxy* galaxy = galaxy_create();
-    galaxy->initialize(galaxy, players);
+    if (!galaxy->initialize(galaxy, players)) {
+        galaxy->destroy(galaxy);
+        exit(EXIT_FAILURE);
+    }
 
     human->play = prompt;
     ai->play = ai_strategy;

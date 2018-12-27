@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "planet.h"
-#include "utils.h"
 #include "player.h"
+#include "error.h"
 
 
 Planet* get_player_home_planet(Player* player)
@@ -20,8 +20,9 @@ void player_free(Player* player)
 {
     if (!player) return;
 
-    player->planets->free(player->planets);
-    player->fleets->free(player->fleets);
+    if (player->planets) player->planets->free(player->planets);
+    if (player->fleets) player->fleets->free(player->fleets);
+
     free(player);
 }
 
@@ -53,38 +54,38 @@ void player_update_resources(Player* player)
 Player* player_create(char symbol, char* color)
 {
     if (!is_color_valid(color)) {
-        fprintf(stderr, "%s: invalid color (%s)\n", __func__, color);
-        exit(EXIT_FAILURE);
+        INVALID_COLOR_ERROR(__func__, color);
+        return NULL;
     }
 
     Player* player = malloc(sizeof(Player));
     if (!player) {
-        MALLOC_ERROR(__func__);
-        exit(EXIT_FAILURE);
-    }
-
-    player->symbol = symbol;
-    player->color = color;
-
-    player->planets = linked_list_create();
-    if (!player->planets) {
-        MALLOC_ERROR(__func__);
-        free(player);
-        exit(EXIT_FAILURE);
-    }
-
-    player->fleets = linked_list_create();
-    if (!player->fleets) {
-        MALLOC_ERROR(__func__);
-        player->planets->free(player->planets);
-        free(player);
-        exit(EXIT_FAILURE);
+        MALLOC_ERROR(__func__, "cannot create player");
+        return NULL;
     }
 
     player->play = NULL;
     player->home_planet = get_player_home_planet;
     player->update_resources = player_update_resources;
     player->destroy = player_free;
+
+    player->symbol = symbol;
+    player->color = color;
+
+    player->fleets = NULL;
+    player->planets = linked_list_create();
+    if (!player->planets) {
+        MALLOC_ERROR(__func__, "cannot create planet list");
+        player->destroy(player);
+        return NULL;
+    }
+
+    player->fleets = linked_list_create();
+    if (!player->fleets) {
+        MALLOC_ERROR(__func__, "cannot create fleet list");
+        player->destroy(player);
+        return NULL;
+    }
 
     return player;
 }

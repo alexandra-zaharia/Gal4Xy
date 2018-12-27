@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "planet.h"
 #include "galaxy.h"
-#include "utils.h"
+#include "error.h"
 
 void planet_free(Planet* planet)
 {
@@ -16,8 +16,8 @@ Planet* planet_create(unsigned short int x, unsigned short int y)
 {
     Planet* planet = malloc(sizeof(Planet));
     if (!planet) {
-        MALLOC_ERROR(__func__);
-        exit(EXIT_FAILURE);
+        MALLOC_ERROR(__func__, "cannot create planet");
+        return NULL;
     }
     planet->owner = NULL;
     planet->x = x;

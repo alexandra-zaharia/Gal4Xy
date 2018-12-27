@@ -9,6 +9,7 @@
 #include "galaxy.h"
 #include "utils.h"
 #include "io.h"
+#include "error.h"
 
 const char O_NONE = '?';
 
@@ -27,13 +28,14 @@ bool value_already_present_before_index(
 
 /*
  * Determines the two home planets (for the human and AI players) in the galaxy.
+ *
+ * Returns true if home planets were correctly initialized, false otherwise.
  */
-void home_planets_initialize(Galaxy* galaxy, Vector* planets)
+bool home_planets_initialize(Galaxy* galaxy, Vector* planets)
 {
     if (planets->size < galaxy->players->size) {
-        fprintf(stderr, "%s: insufficient planets (%d) for all players (%d)\n",
-                __func__, planets->size, galaxy->players->size);
-        galaxy->destroy(galaxy);
+        INSUFFICIENT_PLANETS_ERROR(__func__, planets->size, galaxy->players->size);
+        return false;
     }
 
     unsigned short int home_planets[galaxy->players->size];
@@ -53,6 +55,8 @@ void home_planets_initialize(Galaxy* galaxy, Vector* planets)
         Sector* sector = &galaxy->sectors[home_planet->x][home_planet->y];
         sector->explored->data[i] = (void*) true;
     }
+
+    return true;
 }
 
 /*
@@ -60,13 +64,20 @@ void home_planets_initialize(Galaxy* galaxy, Vector* planets)
  * sectors containing planets, determine how many resources per turn they generate. For empty
  * sectors, determine their exploration bonus. Each sector also stores an explored state for every
  * player.
+ *
+ * Returns true if the galaxy was correctly initialized, false otherwise.
  */
-void galaxy_initialize(Galaxy* galaxy, Vector* players)
+bool galaxy_initialize(Galaxy* galaxy, Vector* players)
 {
+
     galaxy->players = players;
-
     Vector* planets = vector_create();
+    if (!planets) {
+        MALLOC_ERROR(__func__, "cannot create planets vector");
+        return false;
+    }
 
+    bool status = true;
     srand((unsigned int) time(NULL));
 
     for (unsigned short int i = 0; i < SIZE; i++)
@@ -74,9 +85,9 @@ void galaxy_initialize(Galaxy* galaxy, Vector* players)
             Sector* sector = &galaxy->sectors[i][j];
             sector->explored = vector_create();
             if (!sector->explored) {
-                MALLOC_ERROR(__func__);
-                galaxy->destroy(galaxy);
-                exit(EXIT_FAILURE);
+                MALLOC_ERROR(__func__, "cannot create explored vector");
+                status = false;
+                goto free_planets;
             }
 
             for (unsigned int k = 0; k < players->size; k++)
@@ -87,8 +98,12 @@ void galaxy_initialize(Galaxy* galaxy, Vector* players)
 
             double random = (double)rand() / RAND_MAX;
             if (random <= PLANET_PROB) {
-                sector->has_planet = true;
                 sector->planet = planet_create(i, j);
+                if (!sector->planet) {
+                    status = false;
+                    goto free_planets;
+                }
+                sector->has_planet = true;
                 planets->add(planets, sector->planet);
             } else {
                 sector->has_planet = false;
@@ -97,8 +112,12 @@ void galaxy_initialize(Galaxy* galaxy, Vector* players)
             }
         }
 
-    home_planets_initialize(galaxy, planets);
+    status = status && home_planets_initialize(galaxy, planets);
+
+free_planets:
     planets->free(planets);
+
+    return status;
 }
 
 
@@ -133,67 +152,83 @@ void galaxy_free(Galaxy* galaxy)
 {
     if (!galaxy) return;
 
-    for (int i = 0; i < SIZE; i++)
-        for (int j = 0; j < SIZE; j++) {
-            Sector *sector = &galaxy->sectors[i][j];
-            sector->explored->free(sector->explored);
-            if (galaxy->sectors[i][j].has_planet) {
-                sector->planet->destroy(sector->planet);
+    if (galaxy->sectors) {
+        for (int i = 0; i < SIZE; i++) {
+            if (!galaxy->sectors[i]) continue;
+            for (int j = 0; j < SIZE; j++) {
+                Sector *sector = &galaxy->sectors[i][j];
+                if (sector) {
+                    if (sector->explored)
+                        sector->explored->free(sector->explored);
+                    if (sector->has_planet)
+                        sector->planet->destroy(sector->planet);
+                }
             }
         }
 
-    for (int i = 0; i < SIZE; i++)
-        free(galaxy->sectors[i]);
-    free(galaxy->sectors);
+        for (int i = 0; i < SIZE; i++)
+            if (galaxy->sectors[i])
+                free(galaxy->sectors[i]);
 
-    for (unsigned int i = 0; i < galaxy->players->size; i++) {
-        Player* player = (Player*) galaxy->players->data[i];
-        player->destroy(player);
+        free(galaxy->sectors);
     }
-    galaxy->players->free(galaxy->players);
+
+    if (galaxy->players) {
+        for (unsigned int i = 0; i < galaxy->players->size; i++) {
+            Player *player = (Player *) galaxy->players->data[i];
+            player->destroy(player);
+        }
+        galaxy->players->free(galaxy->players);
+    }
 
     free(galaxy);
 }
 
 /*
  * Creates and returns an empty galaxy (having SIZE x SIZE uninitialized sectors).
+ *
+ * Returns NULL in case of failure.
  */
 Galaxy* galaxy_create()
 {
     Galaxy* galaxy = malloc(sizeof(Galaxy));
     if (!galaxy) {
-        MALLOC_ERROR(__func__);
-        exit(EXIT_FAILURE);
+        MALLOC_ERROR(__func__, "cannot create galaxy");
+        return NULL;
     }
-
-    galaxy->players = NULL;
-
-    galaxy->sectors = malloc(SIZE * sizeof(Sector*));
-    if (!galaxy->sectors) {
-        MALLOC_ERROR(__func__);
-        free(galaxy);
-        exit(EXIT_FAILURE);
-    }
-
-    for (int i = 0; i < SIZE; i++) {
-        galaxy->sectors[i] = malloc(SIZE * sizeof(Sector));
-        if (!galaxy->sectors[i]) {
-            MALLOC_ERROR(__func__);
-            for (int j = 0; j < i; j++)
-                free(galaxy->sectors[j]);
-            free(galaxy->sectors);
-            free(galaxy);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    galaxy->game_over = false;
-    galaxy->turn = 0;
 
     galaxy->initialize = galaxy_initialize;
     galaxy->display = galaxy_display;
     galaxy->update = galaxy_update;
     galaxy->destroy = galaxy_free;
+
+    galaxy->players = NULL;
+    galaxy->game_over = false;
+    galaxy->turn = 0;
+
+    galaxy->sectors = malloc(SIZE * sizeof(Sector*));
+    if (!galaxy->sectors) {
+        MALLOC_ERROR(__func__, "cannot create sectors");
+        galaxy->destroy(galaxy);
+        return NULL;
+    }
+
+    for (int i = 0; i < SIZE; i++) {
+        galaxy->sectors[i] = malloc(SIZE * sizeof(Sector));
+        if (!galaxy->sectors[i]) {
+            MALLOC_ERROR(__func__, "cannot create sector arrays");
+            for (int j = 0; j < i; j++)
+                free(galaxy->sectors[j]);
+            free(galaxy->sectors);
+            free(galaxy);
+            return NULL;
+        }
+        for (int j = 0; j < SIZE; j++) {
+            Sector* sector = &galaxy->sectors[i][j];
+            sector->explored = NULL;
+            sector->has_planet = false;
+        }
+    }
 
     return galaxy;
 }

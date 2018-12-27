@@ -10,7 +10,7 @@
 
 int main()
 {
-    Player* human = player_create('*', BOLDGREEN);
+    Player* human = player_create('*', BOLDGREEN); // the human player must be the first one
     Player* ai = player_create('@', BOLDRED);
 
     Vector* players = vector_create();

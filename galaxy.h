@@ -13,7 +13,7 @@
 #define PLANET_PROB 0.25   // probability for a sector to contain a planet
 #define BONUS_MIN 50       // minimum bonus resources for sector exploration
 #define BONUS_MAX 250      // maximum bonus resources for sector exploration
-#define UNIT_COST 1000     // cost (in resources) for one fleet unit
+#define UNIT_COST 1000     // cost (in resources) for one ship
 
 extern const char O_NONE;  // symbol associated to unowned sectors
 

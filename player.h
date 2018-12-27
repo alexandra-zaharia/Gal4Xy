@@ -14,6 +14,7 @@ typedef struct Player Player;
 struct Player {
     char symbol;                     // symbol associated to the player
     char* color;                     // player color for galaxy display
+
     LinkedList* planets;             // list of planets owned by the player
     LinkedList* fleets;              // list of fleets owned by the player
 

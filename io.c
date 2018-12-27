@@ -126,7 +126,7 @@ void display_greeting(Galaxy* galaxy, bool cheat)
                    BOLDRED "(%u, %u)" BOLDWHITE ".\n" RESET,
                    ai->home_planet(ai)->x, ai->home_planet(ai)->y);
         }
-        len_greeting -= 2 * strlen(BOLDWHITE) + strlen(BOLDGREEN) + strlen(RESET);
+        len_greeting -= (int) (2 * strlen(BOLDWHITE) + strlen(BOLDGREEN) + strlen(RESET));
         for (int i = 0; i < len_greeting - 1; i++)
             printf("=");
         printf("\n\n");
@@ -168,15 +168,15 @@ void display_sectors(Galaxy* galaxy, bool cheat)
 {
     for (unsigned short int i = 0; i < SIZE; i++) {
         for (unsigned short int j = 0; j < SIZE; j++) {
+            Sector* sector = &galaxy->sectors[i][j];
+
             if (j == 0)
                 printf(" %hu |", i);
             char symbol;
             char* color_prefix = "";
             char* color_suffix = "";
             if (cheat) {
-                symbol = galaxy->sectors[i][j].has_planet
-                    ? galaxy->sectors[i][j].planet->owner
-                    : (char) ' ';
+                symbol = sector->has_planet ? sector->planet->owner : (char) ' ';
                 if (symbol == O_AI) {
                     color_prefix = BOLDRED;
                     color_suffix = RESET;
@@ -185,13 +185,11 @@ void display_sectors(Galaxy* galaxy, bool cheat)
                     color_suffix = RESET;
                 }
             } else {
-                symbol = galaxy->sectors[i][j].explored_h//->data[0]
-                    ? galaxy->sectors[i][j].has_planet
-                        ? O_HUMAN
-                        : (char) ' '
-                    : O_NONE;
+                symbol = (bool) sector->explored->data[0]
+                        ? sector->has_planet ? O_HUMAN : (char) ' '
+                        : O_NONE;
             }
-            if (galaxy->sectors[i][j].explored_h) {//->data[0]) {
+            if (sector->explored->data[0]) {
                 color_prefix = BOLDGREEN;
                 color_suffix = RESET;
             }

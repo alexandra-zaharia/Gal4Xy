@@ -24,8 +24,6 @@ typedef struct {
     unsigned short int y;  // y-coordinate of the sector in the galaxy
 
     Vector* explored;      // has this sector been explored by the players?
-    bool explored_h;       // has this sector been explored by the human player?
-    bool explored_a;       // has this sector been explored by the AI player?
 
     bool has_planet;       // does this sector contain a planet?
     union {
@@ -39,12 +37,12 @@ struct Galaxy {
     Sector** sectors;
     Vector* players;
 
-    bool game_over;              // has the galaxy been conquered?
-    unsigned int turn;           // current turn
+    bool game_over;                       // has the galaxy been conquered?
+    unsigned int turn;                    // current turn
 
-    void (*initialize)(Galaxy*); // initializes the galaxy
-    void (*display)(Galaxy*);    // display the galaxy
-    void (*destroy)(Galaxy*);    // frees the galaxy
+    void (*initialize)(Galaxy*, Vector*); // initializes the galaxy
+    void (*display)(Galaxy*);             // display the galaxy
+    void (*destroy)(Galaxy*);             // frees the galaxy
 };
 
 Galaxy* galaxy_create();

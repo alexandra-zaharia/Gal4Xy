@@ -28,10 +28,10 @@ int main()
     ai->play = ai_strategy;
 
     while (!galaxy->game_over) {
+        galaxy->update(galaxy);
         galaxy->display(galaxy);
         ai->play(ai, galaxy);
         human->play(human, galaxy);
-        ++galaxy->turn;
     }
 
     galaxy->destroy(galaxy);

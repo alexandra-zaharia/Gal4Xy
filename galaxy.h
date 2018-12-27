@@ -40,6 +40,7 @@ struct Galaxy {
 
     void (*initialize)(Galaxy*, Vector*); // initializes the galaxy
     void (*display)(Galaxy*);             // display the galaxy
+    void (*update)(Galaxy*);              // updates the galaxy when advancing one turn
     void (*destroy)(Galaxy*);             // frees the galaxy
 };
 

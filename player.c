@@ -38,6 +38,18 @@ bool is_color_valid(char* color)
 }
 
 
+/*
+ * Updates resources for every planet owned by the player.
+ */
+void player_update_resources(Player* player)
+{
+    for (DNode* node = player->planets->head; node; node = node->next) {
+        Planet* planet = (Planet*) node->data;
+        planet->res_total += planet->res_per_turn;
+    }
+}
+
+
 Player* player_create(char symbol, char* color)
 {
     if (!is_color_valid(color)) {
@@ -71,6 +83,7 @@ Player* player_create(char symbol, char* color)
 
     player->play = NULL;
     player->home_planet = get_player_home_planet;
+    player->update_resources = player_update_resources;
     player->destroy = player_free;
 
     return player;

@@ -58,9 +58,15 @@ void find_fleets()
 }
 
 
-void find_planets()
+void find_planets(Player* player)
 {
-    printf("%s: not implemented\n", __func__);
+    printf("You have %d planet%s:\n", player->planets->size, player->planets->size > 1 ? "s" : "");
+    for (DNode* node = player->planets->head; node; node = node->next) {
+        Planet* planet = (Planet*) node->data;
+        printf("\tPlanet in sector (%hu, %hu):\n", planet->x, planet->y);
+        printf("\t\tResources per turn: %hu\n", planet->res_per_turn);
+        printf("\t\tTotal resources: %hu\n", planet->res_total);
+    }
 }
 
 void cheat(Galaxy*);
@@ -87,7 +93,7 @@ void prompt(Player* player, Galaxy* galaxy)
             case 'f':
             case 'F': find_fleets(); break;
             case 'p':
-            case 'P': find_planets(); break;
+            case 'P': find_planets(player); break;
             case 'g':
             case 'G': galaxy->display(galaxy); break;
             case 't':

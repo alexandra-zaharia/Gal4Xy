@@ -19,7 +19,7 @@ Planet* planet_create(unsigned short int x, unsigned short int y)
         MALLOC_ERROR(__func__);
         exit(EXIT_FAILURE);
     }
-    planet->owner = O_NONE;
+    planet->owner = NULL;
     planet->x = x;
     planet->y = y;
     planet->res_per_turn = (unsigned short int)(UNIT_COST / 10 * (1 + rand() % 10));

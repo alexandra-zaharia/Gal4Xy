@@ -176,13 +176,20 @@ void display_sectors(Galaxy* galaxy, bool cheat)
             char* color_prefix = "";
             char* color_suffix = "";
             if (cheat) {
-                symbol = sector->has_planet ? sector->planet->owner : (char) ' ';
-                if (symbol == O_AI) {
-                    color_prefix = BOLDRED;
-                    color_suffix = RESET;
-                } else if (symbol == O_NONE) {
-                    color_prefix = YELLOW;
-                    color_suffix = RESET;
+                if (sector->has_planet) {
+                    if (sector->planet->owner) {
+                        symbol = sector->planet->owner->symbol;
+                        if (symbol == O_AI) {
+                            color_prefix = BOLDRED;
+                            color_suffix = RESET;
+                        }
+                    } else {
+                        symbol = O_NONE;
+                        color_prefix = YELLOW;
+                        color_suffix = RESET;
+                    }
+                } else {
+                    symbol = (char) ' ';
                 }
             } else {
                 symbol = (bool) sector->explored->data[0]

@@ -51,7 +51,7 @@ void home_planets_initialize(Galaxy* galaxy, Vector* planets)
         Player* player = (Player*) galaxy->players->data[i];
         player->planets->insert_start(player->planets, planets->data[home_planets[i]]);
         Planet* home_planet = (Planet*) player->planets->head->data;
-        home_planet->owner = player->symbol;
+        home_planet->owner = player;
         Sector* sector = &galaxy->sectors[home_planet->x][home_planet->y];
         sector->explored->data[i] = (void*) true;
     }

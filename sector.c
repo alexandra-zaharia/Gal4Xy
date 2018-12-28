@@ -24,10 +24,24 @@ void sector_free(Sector* sector)
     if (sector->fleet)
         sector->fleet->destroy(sector->fleet);
 
-    if (sector->incoming)
+    if (sector->incoming) {
+        for (unsigned int i = 0; i < sector->incoming->size; i++) {
+            Fleet* fleet = (Fleet*) sector->incoming->data[i];
+            fleet->destroy(fleet);
+        }
         sector->incoming->free(sector->incoming);
+    }
 
     free(sector);
+}
+
+
+/*
+ * Updates the sector, as it contains incoming fleets.
+ */
+void sector_update(Sector* sector, Galaxy* galaxy)
+{
+    printf("sector update: (%hu, %hu)\n", sector->x, sector->y);
 }
 
 
@@ -51,6 +65,7 @@ Sector* sector_create(unsigned short int x, unsigned short int y)
     sector->fleet = NULL;
     sector->incoming = NULL;
 
+    sector->update = sector_update;
     sector->destroy = sector_free;
 
     return sector;

@@ -137,23 +137,30 @@ bool is_move_valid(Player* player, Galaxy* galaxy,
 /*
  * Attempts to move a player's fleet of specified power, from sector (sx, sy) to sector (tx, ty).
  */
-void player_move_fleet(Player* player, Galaxy* galaxy, int sx, int sy, int tx, int ty, int power)
+void player_move_fleet(
+        Player* player, Galaxy* galaxy, int _sx, int _sy, int _tx, int _ty, int _power)
 {
-    if (is_move_valid(player, galaxy, sx, sy, tx, ty, power)) {
+    if (is_move_valid(player, galaxy, _sx, _sy, _tx, _ty, _power)) {
+        unsigned short int sx = (unsigned short int) _sx;
+        unsigned short int sy = (unsigned short int) _sy;
+        unsigned short int tx = (unsigned short int) _tx;
+        unsigned short int ty = (unsigned short int) _ty;
+        unsigned int power = (unsigned int) _power;
+
         // Add ships to or create incoming fleet in sector (tx, ty)
-        Fleet* f_dst = player->find_incoming(
-                player, galaxy, (unsigned short int) tx, (unsigned short int) ty);
+        Fleet* f_dst = player->find_incoming(player, galaxy, tx, ty);
 
         if (f_dst) {
-            f_dst->power += (unsigned int) power;
+            f_dst->power += power;
         } else {
-            galaxy->sectors[sx][sy]->incoming->add(galaxy->sectors[sx][sy]->incoming, f_dst);
+            Fleet* fleet = fleet_create(tx, ty, player, power);
+            galaxy->sectors[tx][ty]->incoming->add(galaxy->sectors[tx][ty]->incoming, fleet);
         }
 
         // Remove ships from or delete fleet at sector (sx, sy)
-        Fleet* f_src = player->find_fleet(player, (unsigned short int) sx, (unsigned short int) sy);
+        Fleet* f_src = player->find_fleet(player, sx, sy);
         assert(f_src);
-        f_src->power -= (unsigned int) power;
+        f_src->power -= power;
         if (f_src->power == 0) {
             int index = get_index_in_list(player->fleets, f_src);
             assert(index >= 0);
@@ -164,9 +171,7 @@ void player_move_fleet(Player* player, Galaxy* galaxy, int sx, int sy, int tx, i
 
         // Log moving fleets for human player
         if (galaxy->players->data[0] == player)
-            log_move_fleet((unsigned short int) sx, (unsigned short int) sy,
-                           (unsigned short int) tx, (unsigned short int) ty,
-                           (unsigned int) power);
+            log_move_fleet(sx, sy, tx, ty, power);
     }
 }
 

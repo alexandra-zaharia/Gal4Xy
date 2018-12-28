@@ -153,6 +153,11 @@ void galaxy_update(Galaxy* galaxy)
         player->update_resources(player);
         player->build_ships(player, galaxy);
     }
+
+    for (unsigned int i = 0; i < SIZE; i++)
+        for (unsigned int j = 0; j < SIZE; j++)
+            if (galaxy->sectors[i][j]->incoming->size > 0)
+                galaxy->sectors[i][j]->update(galaxy->sectors[i][j], galaxy);
 }
 
 

@@ -7,11 +7,20 @@
 #include "galaxy.h"
 #include "error.h"
 
+/*
+ * Frees (de-allocates) the planet.
+ */
 void planet_free(Planet* planet)
 {
     if (planet) free(planet);
 }
 
+
+/*
+ * Creates and returns a planet at the specified coordinates.
+ *
+ * Returns NULL in case of failure.
+ */
 Planet* planet_create(unsigned short int x, unsigned short int y)
 {
     Planet* planet = malloc(sizeof(Planet));

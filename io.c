@@ -175,7 +175,7 @@ void display_sectors(Galaxy* galaxy, bool cheat)
 {
     for (unsigned short int i = 0; i < SIZE; i++) {
         for (unsigned short int j = 0; j < SIZE; j++) {
-            Sector* sector = &galaxy->sectors[i][j];
+            Sector* sector = galaxy->sectors[i][j];
 
             if (j == 0)
                 printf(" %hu |", i);

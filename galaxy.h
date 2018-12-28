@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "include/vector.h"
 #include "planet.h"
+#include "fleet.h"
 
 #define SIZE 10            // galaxy size is SIZE x SIZE
 #define PLANET_PROB 0.25   // probability for a sector to contain a planet
@@ -28,11 +29,14 @@ typedef struct {
         unsigned short int res_bonus; // bonus resources for exploration if no planet in sector
         Planet* planet;               // the planet, if applicable
     };
+
+    Fleet* fleet;          // fleet in place in this sector
+    Vector* incoming;      // incoming fleets for this sector
 } Sector;
 
 typedef struct Galaxy Galaxy;
 struct Galaxy {
-    Sector** sectors;
+    Sector*** sectors;                    // pointer to 2D array of pointers to Sector
     Vector* players;
 
     bool game_over;                       // has the galaxy been conquered?

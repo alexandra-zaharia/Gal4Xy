@@ -9,6 +9,9 @@
 #include "error.h"
 
 
+/*
+ * Returns the player's home planet, or NULL if the player has no more planets left.
+ */
 Planet* get_player_home_planet(Player* player)
 {
     if (!player->planets || !player->planets->head) return NULL;
@@ -16,6 +19,9 @@ Planet* get_player_home_planet(Player* player)
 }
 
 
+/*
+ * Frees (de-allocates) the player.
+ */
 void player_free(Player* player)
 {
     if (!player) return;
@@ -51,6 +57,11 @@ void player_update_resources(Player* player)
 }
 
 
+/*
+ * Creates and returns a player with an associated symbol and color as specified.
+ *
+ * Returns NULL in case of failure.
+ */
 Player* player_create(char symbol, char* color)
 {
     if (!is_color_valid(color)) {

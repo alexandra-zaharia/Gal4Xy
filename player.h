@@ -12,17 +12,19 @@
 typedef struct Player Player;
 
 struct Player {
-    char symbol;                       // symbol associated to the player
-    char* color;                       // player color for galaxy display
+    char symbol;                           // symbol associated to the player
+    char* color;                           // player color for galaxy display
 
-    LinkedList* planets;               // list of planets owned by the player
-    LinkedList* fleets;                // list of fleets owned by the player
+    LinkedList* planets;                   // list of planets owned by the player
+    LinkedList* fleets;                    // list of fleets owned by the player
 
-    void (*play)(Player*, Galaxy*);    // player strategy for one turn
-    Planet* (*home_planet)(Player*);   // returns the player's home planet (if any)
-    void (*update_resources)(Player*); // updates resources for player's planets
+    void (*play)(Player*, Galaxy*);        // player strategy for one turn
+    Planet* (*home_planet)(Player*);       // returns the player's home planet (if any)
+    Fleet* (*find_fleet)(Player*, unsigned short int, unsigned short int); // returns fleet at (x,y)
+    void (*update_resources)(Player*);     // updates resources for player's planets
+    void (*build_ships)(Player*, Galaxy*); // builds ships for the player where applicable
 
-    void (*destroy)(Player*);          // frees the player
+    void (*destroy)(Player*);              // frees the player
 };
 
 Player* player_create(char symbol, char* color);

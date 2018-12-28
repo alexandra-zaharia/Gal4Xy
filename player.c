@@ -58,6 +58,81 @@ void player_update_resources(Player* player)
 
 
 /*
+ * Returns the player's fleet at sector (x, y), or NULL in case the player has no fleet at the
+ * specified location.
+ */
+Fleet* player_find_fleet(Player* player, unsigned short int x, unsigned short int y)
+{
+    for (DNode* node = player->fleets->head; node; node = node->next) {
+        Fleet* fleet = (Fleet*) node->data;
+        if (fleet->x == x && fleet->y == y)
+            return fleet;
+    }
+    return NULL;
+}
+
+
+/*
+ * Returns the index in the player's list of fleets at which to insert a new given fleet, such that
+ * the player's fleets are sorted by ascending sector coordinates. Returns -1 if the new fleet
+ * needs to be inserted at the end of the player's list of fleets.
+ */
+int player_insert_fleet_at_index(Player* player, Fleet* to_insert)
+{
+    int index = -1;
+
+    for (DNode* node = player->fleets->head; node; node = node->next) {
+        ++index;
+        Fleet* fleet = node->data;
+        if (to_insert->x < fleet->x) return index;
+        if (to_insert->x == fleet->x) {
+            if (to_insert->y < fleet->y) return index;
+            return index + 1;
+        }
+    }
+
+    return -1;
+}
+
+
+/*
+ * Adds a new fleet to the player's list of fleets, such that the player's fleets are sorted by
+ * ascending sector coordinates.
+ */
+void player_add_fleet(Player* player, Fleet* fleet)
+{
+    int index = player_insert_fleet_at_index(player, fleet);
+    if (index < 0) {
+        player->fleets->insert_end(player->fleets, fleet);
+    } else {
+        player->fleets->insert_at(player->fleets, fleet, (unsigned int) index);
+    }
+}
+
+
+/*
+ * Builds ships on every planet owned by the player having enough resources.
+ */
+void player_build_ships(Player* player, Galaxy* galaxy)
+{
+    for (DNode* node = player->planets->head; node; node = node->next) {
+        Planet *planet = (Planet *) node->data;
+        if (planet->res_total >= UNIT_COST) {
+            unsigned int power = (unsigned int) (planet->res_total)/UNIT_COST;
+            Sector* sector = galaxy->sectors[planet->x][planet->y];
+            if (!sector->fleet) {
+                sector->fleet = fleet_create(sector->x, sector->y, player, power);
+                player_add_fleet(player, sector->fleet);
+            } else {
+                sector->fleet->power += power;
+            }
+            planet->res_total -= (unsigned short int) (power * UNIT_COST);
+        }
+    }
+}
+
+
+/*
  * Creates and returns a player with an associated symbol and color as specified.
  *
  * Returns NULL in case of failure.
@@ -77,7 +152,9 @@ Player* player_create(char symbol, char* color)
 
     player->play = NULL;
     player->home_planet = get_player_home_planet;
+    player->find_fleet = player_find_fleet;
     player->update_resources = player_update_resources;
+    player->build_ships = player_build_ships;
     player->destroy = player_free;
 
     player->symbol = symbol;

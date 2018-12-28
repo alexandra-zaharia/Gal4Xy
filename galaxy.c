@@ -139,25 +139,17 @@ free_planets:
 
 
 /*
- * Updates resources for every planet owned by a player.
- */
-void update_resources(Galaxy* galaxy)
-{
-    for (unsigned int i = 0; i < galaxy->players->size; i++) {
-        Player* player = (Player*) galaxy->players->data[i];
-        player->update_resources(player);
-    }
-}
-
-
-/*
  * Updates the galaxy by advancing one turn: planet resources are gathered for planets owned by
  * players, ships are built and moved, sectors are explored and battles take place where applicable.
  */
 void galaxy_update(Galaxy* galaxy)
 {
-    if (++galaxy->turn > 1) {
-        update_resources(galaxy);
+    if (++galaxy->turn == 1) return;
+
+    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        Player* player = (Player*) galaxy->players->data[i];
+        player->update_resources(player);
+        player->build_ships(player, galaxy);
     }
 }
 

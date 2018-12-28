@@ -13,3 +13,4 @@ A turn-based 4X game where you play against the computer to conquer the galaxy
 ## TODO
   * Ensure that player symbols/colors are unique.
   * Take into account dark/light background for console text.
+  * Take all AI players into account (incoming fleet) when displaying the galaxy in cheat mode.

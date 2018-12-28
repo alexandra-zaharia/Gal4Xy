@@ -7,6 +7,7 @@
 #include "ai.h"
 #include "io.h"
 #include "color.h"
+#include "error.h"
 
 int main()
 {
@@ -27,7 +28,10 @@ int main()
 
     Vector* players = vector_create();
     if (!players) {
-        fprintf(stderr, "Cannot create players\n");
+        MALLOC_ERROR(__func__, "cannot create players");
+        human->destroy(human);
+        ai->destroy(ai);
+        galaxy->destroy(galaxy);
         exit(EXIT_FAILURE);
     }
     players->add(players, human);

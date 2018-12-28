@@ -156,18 +156,17 @@ void galaxy_free(Galaxy* galaxy)
 {
     if (!galaxy) return;
 
+    unsigned short int i;
+
     if (galaxy->sectors) {
-        for (int i = 0; i < SIZE; i++) {
+        for (i = 0; i < SIZE; i++) {
             if (!galaxy->sectors[i]) continue;
-            for (int j = 0; j < SIZE; j++) {
-                Sector *sector = galaxy->sectors[i][j];
-                if (sector) {
-                    sector->destroy(sector);
-                }
-            }
+            for (int j = 0; j < SIZE; j++)
+                if (galaxy->sectors[i][j])
+                    galaxy->sectors[i][j]->destroy(galaxy->sectors[i][j]);
         }
 
-        for (int i = 0; i < SIZE; i++)
+        for (i = 0; i < SIZE; i++)
             if (galaxy->sectors[i])
                 free(galaxy->sectors[i]);
 
@@ -175,7 +174,7 @@ void galaxy_free(Galaxy* galaxy)
     }
 
     if (galaxy->players) {
-        for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        for (i = 0; i < galaxy->players->size; i++) {
             Player *player = (Player *) galaxy->players->data[i];
             player->destroy(player);
         }
@@ -215,18 +214,28 @@ Galaxy* galaxy_create()
         return NULL;
     }
 
-    for (unsigned short int i = 0; i < SIZE; i++) {
+    unsigned short int i, j;
+    for (i = 0; i < SIZE; i++)
+        galaxy->sectors[i] = NULL;
+
+    for (i = 0; i < SIZE; i++) {
         galaxy->sectors[i] = malloc(SIZE * sizeof(Sector*));
         if (!galaxy->sectors[i]) {
             MALLOC_ERROR(__func__, "cannot create sector arrays");
-            for (int j = 0; j < i; j++)
-                free(galaxy->sectors[j]);
-            free(galaxy->sectors);
-            free(galaxy);
+            galaxy->destroy(galaxy);
             return NULL;
         }
-        for (unsigned short int j = 0; j < SIZE; j++)
+
+        for (j = 0; j < SIZE; j++)
+            galaxy->sectors[i][j] = NULL;
+
+        for (j = 0; j < SIZE; j++) {
             galaxy->sectors[i][j] = sector_create(i, j);
+            if (!galaxy->sectors[i][j]) {
+                galaxy->destroy(galaxy);
+                return NULL;
+            }
+        }
     }
 
     return galaxy;

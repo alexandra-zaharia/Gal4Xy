@@ -52,11 +52,20 @@ bool home_planets_initialize(Galaxy* galaxy, Vector* planets)
 
     for (i = 0; i < galaxy->players->size; i++) {
         Player* player = (Player*) galaxy->players->data[i];
+
+        // Add home planet to player's planets
         player->planets->insert_start(player->planets, planets->data[home_planets[i]]);
         Planet* home_planet = (Planet*) player->planets->head->data;
         home_planet->owner = player;
+
+        // Mark the home planet sector as explored for the player
         Sector* sector = galaxy->sectors[home_planet->x][home_planet->y];
         sector->explored->data[i] = (void*) true;
+
+        // Create a fleet with firepower 1 in the home planet sector and add it to player's fleets
+        Fleet* fleet = fleet_create(home_planet->x, home_planet->y, player, 1);
+        sector->fleet = fleet;
+        player->fleets->insert_start(player->fleets, fleet);
     }
 
     return true;
@@ -97,8 +106,12 @@ bool galaxy_initialize(Galaxy* galaxy, Vector* players)
             for (unsigned int k = 0; k < players->size; k++)
                 sector->explored->add(sector->explored, false);
 
-            sector->x = i;
-            sector->y = j;
+            sector->incoming = vector_create();
+            if (!sector->incoming) {
+                MALLOC_ERROR(__func__, "cannot create incoming vector");
+                status = false;
+                goto free_planets;
+            }
 
             double random = (double)rand() / RAND_MAX;
             if (random <= PLANET_PROB) {

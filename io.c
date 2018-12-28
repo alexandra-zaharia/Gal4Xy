@@ -52,9 +52,20 @@ void prompt_move_ships()
 }
 
 
-void find_fleets()
+void find_fleets(Player* player)
 {
-    printf("%s: not implemented\n", __func__);
+    if (!player->fleets->size) {
+        printf("\nYou have no fleet in the whole wide galaxy. :-(\n");
+        printf("Or maybe you do but they're all in transit. :-)\n");
+        return;
+    }
+
+    printf("You have %d fleet%s:\n", player->fleets->size, player->fleets->size > 1 ? "s" : "");
+    for (DNode* node = player->fleets->head; node; node = node->next) {
+        Fleet* fleet = (Fleet*) node->data;
+        printf("\tSector (%hu, %hu) has a fleet with %u total firepower.\n",
+                fleet->x, fleet->y, fleet->power);
+    }
 }
 
 
@@ -69,7 +80,9 @@ void find_planets(Player* player)
     }
 }
 
+
 void cheat(Galaxy*);
+
 
 void prompt(Player* player, Galaxy* galaxy)
 {
@@ -91,7 +104,7 @@ void prompt(Player* player, Galaxy* galaxy)
             case 'm':
             case 'M': prompt_move_ships(); break;
             case 'f':
-            case 'F': find_fleets(); break;
+            case 'F': find_fleets(player); break;
             case 'p':
             case 'P': find_planets(player); break;
             case 'g':

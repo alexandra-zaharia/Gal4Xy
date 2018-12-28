@@ -7,6 +7,7 @@
 #include "planet.h"
 #include "player.h"
 #include "error.h"
+#include "notifications.h"
 
 
 /*
@@ -73,6 +74,57 @@ Fleet* player_find_fleet(Player* player, unsigned short int x, unsigned short in
 
 
 /*
+ * Determines whether a player may move a fleet of specified power from sector (sx, sy) to sector
+ * (tx, ty).
+ */
+bool is_move_valid(Player* player, Galaxy* galaxy, int sx, int sy, int tx, int ty, int power)
+{
+    if (sx < 0 || sy < 0 || tx < 0 || ty < 0) {
+        SECTOR_COORD_NEGATIVE_ERROR;
+        return false;
+    }
+
+    if (sx >= SIZE || sy >= SIZE || tx >= SIZE || ty >= SIZE) {
+        SECTOR_COORD_TOO_BIG_ERROR;
+        return false;
+    }
+
+    if (power < 1) {
+        FLEET_POWER_ERROR;
+        return false;
+    }
+
+    if (sx == tx && sy == ty) {
+        SECTOR_FROM_TO_ERROR;
+        return false;
+    }
+
+    if (!galaxy->sectors[sx][sy]->fleet || galaxy->sectors[sx][sy]->fleet->owner != player) {
+        NOT_FLEET_OWNER_ERROR((unsigned short int) sx, (unsigned short int) sy);
+        return false;
+    }
+
+    if (galaxy->sectors[sx][sy]->fleet->power < (unsigned int) power) {
+        FLEET_TOO_SMALL_ERROR((unsigned short int) sx, (unsigned short int) sy);
+        return false;
+    }
+
+    return true;
+}
+
+
+/*
+ * Attempts to move a player's fleet of specified power, from sector (sx, sy) to sector (tx, ty).
+ */
+void player_move_fleet(Player* player, Galaxy* galaxy, int sx, int sy, int tx, int ty, int power)
+{
+    if (is_move_valid(player, galaxy, sx, sy, tx, ty, power)) {
+        printf("OK\n");
+    }
+}
+
+
+/*
  * Returns the index in the player's list of fleets at which to insert a new given fleet, such that
  * the player's fleets are sorted by ascending sector coordinates. Returns -1 if the new fleet
  * needs to be inserted at the end of the player's list of fleets.
@@ -127,6 +179,10 @@ void player_build_ships(Player* player, Galaxy* galaxy)
                 sector->fleet->power += power;
             }
             planet->res_total -= (unsigned short int) (power * UNIT_COST);
+
+            // Log built ships for human player
+            if (galaxy->players->data[0] == player)
+                notification_ships_built(sector->x, sector->y, power);
         }
     }
 }
@@ -153,6 +209,7 @@ Player* player_create(char symbol, char* color)
     player->play = NULL;
     player->home_planet = get_player_home_planet;
     player->find_fleet = player_find_fleet;
+    player->move_fleet = player_move_fleet;
     player->update_resources = player_update_resources;
     player->build_ships = player_build_ships;
     player->destroy = player_free;

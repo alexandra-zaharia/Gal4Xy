@@ -13,6 +13,7 @@ add_executable(Gal4Xy
         sector.c
         utils.c
         io.c
+        notifications.c
         planet.c
         player.c
         fleet.c

@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
+#include <errno.h>
 #include "galaxy.h"
 #include "color.h"
 #include "io.h"
@@ -46,9 +48,55 @@ char s_getc()
 }
 
 
-void prompt_move_ships()
+void prompt_move_ships(Player* player, Galaxy* galaxy)
 {
-    printf("%s: not implemented\n", __func__);
+    int sx, sy, tx, ty, n;
+    bool read_five_values = false;
+
+    printf("\nFrom which sector, to which sector, and how many fleet units "
+           "do you wish to move?\n");
+    printf("e.g. To move a firepower of 8 from sector (1, 1) to sector (2, 2), "
+           "type 1 1 2 2 8.\n");
+
+    char* buffer = malloc(21);
+    char* move_command = s_gets(buffer, 21);
+    char* token = strtok(move_command, " ");
+    int count = 0;
+
+    while(token) {
+        if (++count > 5) break;
+
+        char* end;
+        long value = strtol(token, &end, 10);
+        if (end == token) {
+            fprintf(stderr, "Not a number: '%s'\n", token);
+            break;
+        } else if ((value == LONG_MIN || value == LONG_MAX) && errno) {
+            fprintf(stderr, "Value out of (long) range: '%s'\n", token);
+            break;
+        } else if (value < INT_MIN || value > INT_MAX) {
+            fprintf(stderr, "Value out of (int) range: %ld\n", value);
+            break;
+        } else {
+            switch (count) {
+                case 1: sx = (int) value; break;
+                case 2: sy = (int) value; break;
+                case 3: tx = (int) value; break;
+                case 4: ty = (int) value; break;
+                case 5: {
+                    n = (int) value;
+                    read_five_values = true;
+                }; break;
+                default: break;
+            }
+        }
+
+        token = strtok(NULL, " ");
+    }
+
+    free(buffer);
+
+    if (read_five_values) player->move_fleet(player, galaxy, sx, sy, tx, ty, n);
 }
 
 
@@ -102,7 +150,7 @@ void prompt(Player* player, Galaxy* galaxy)
             case 'c':
             case 'C': cheat(galaxy); break;
             case 'm':
-            case 'M': prompt_move_ships(); break;
+            case 'M': prompt_move_ships(player, galaxy); break;
             case 'f':
             case 'F': find_fleets(player); break;
             case 'p':
@@ -234,6 +282,7 @@ void galaxy_display(Galaxy* galaxy)
     display_sectors(galaxy, false);
 }
 
+
 void cheat(Galaxy *galaxy)
 {
     display_greeting(galaxy, true);
@@ -242,3 +291,5 @@ void cheat(Galaxy *galaxy)
     display_separator();
     display_sectors(galaxy, true);
 }
+
+

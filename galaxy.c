@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "io.h"
 #include "error.h"
+#include "notifications.h"
 #include "sector.h"
 
 const char O_NONE = '?';
@@ -144,6 +145,7 @@ free_planets:
  */
 void galaxy_update(Galaxy* galaxy)
 {
+    notification_header('#');
     if (++galaxy->turn == 1) return;
 
     for (unsigned int i = 0; i < galaxy->players->size; i++) {

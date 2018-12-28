@@ -10,6 +10,7 @@ include_directories(include lib)
 add_executable(Gal4Xy
         main.c
         galaxy.c
+        sector.c
         utils.c
         io.c
         planet.c

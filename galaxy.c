@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "io.h"
 #include "error.h"
+#include "sector.h"
 
 const char O_NONE = '?';
 
@@ -161,11 +162,7 @@ void galaxy_free(Galaxy* galaxy)
             for (int j = 0; j < SIZE; j++) {
                 Sector *sector = galaxy->sectors[i][j];
                 if (sector) {
-                    if (sector->explored)
-                        sector->explored->free(sector->explored);
-                    if (sector->has_planet)
-                        sector->planet->destroy(sector->planet);
-                    free(sector);
+                    sector->destroy(sector);
                 }
             }
         }
@@ -186,30 +183,6 @@ void galaxy_free(Galaxy* galaxy)
     }
 
     free(galaxy);
-}
-
-
-/*
- * Creates and returns a sector at the specified coordinates.
- *
- * Returns NULL in case of failure.
- */
-Sector* sector_create(unsigned short int x, unsigned short int y)
-{
-    Sector* sector = malloc(sizeof(Sector));
-    if (!sector) {
-        MALLOC_ERROR(__func__, "cannot create sector");
-        return NULL;
-    }
-
-    sector->x = x;
-    sector->y = y;
-    sector->explored = NULL;
-    sector->has_planet = false;
-    sector->fleet = NULL;
-    sector->incoming = NULL;
-
-    return sector;
 }
 
 

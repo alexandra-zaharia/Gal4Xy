@@ -14,4 +14,7 @@ void prompt(Player*, Galaxy*);
 
 void galaxy_display(Galaxy*);
 
+void log_move_fleet(unsigned short int, unsigned short int,
+                    unsigned short int, unsigned short int, unsigned int);
+
 #endif //GAL4XY_IO_H

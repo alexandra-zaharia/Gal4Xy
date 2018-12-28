@@ -4,10 +4,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "planet.h"
 #include "player.h"
 #include "error.h"
 #include "notifications.h"
+#include "utils.h"
+#include "io.h"
 
 
 /*
@@ -57,9 +60,24 @@ void player_update_resources(Player* player)
     }
 }
 
+/*
+ * Returns the player's incoming fleet in sector (x, y), or NULL in case the player has no incoming
+ * fleet at the specified location.
+ */
+Fleet* player_find_incoming_fleet(
+        Player* player, Galaxy* galaxy, unsigned short int x, unsigned short int y)
+{
+    for (unsigned int i = 0; i < galaxy->sectors[x][y]->incoming->size; i++) {
+        Fleet* fleet = (Fleet*) galaxy->sectors[x][y]->incoming->data[i];
+        if (fleet->owner == player)
+            return fleet;
+    }
+    return NULL;
+}
+
 
 /*
- * Returns the player's fleet at sector (x, y), or NULL in case the player has no fleet at the
+ * Returns the player's fleet in sector (x, y), or NULL in case the player has no fleet at the
  * specified location.
  */
 Fleet* player_find_fleet(Player* player, unsigned short int x, unsigned short int y)
@@ -77,7 +95,10 @@ Fleet* player_find_fleet(Player* player, unsigned short int x, unsigned short in
  * Determines whether a player may move a fleet of specified power from sector (sx, sy) to sector
  * (tx, ty).
  */
-bool is_move_valid(Player* player, Galaxy* galaxy, int sx, int sy, int tx, int ty, int power)
+bool is_move_valid(Player* player, Galaxy* galaxy,
+        int const sx, int const sy,
+        int const tx, int const ty,
+        int const power)
 {
     if (sx < 0 || sy < 0 || tx < 0 || ty < 0) {
         SECTOR_COORD_NEGATIVE_ERROR;
@@ -119,7 +140,33 @@ bool is_move_valid(Player* player, Galaxy* galaxy, int sx, int sy, int tx, int t
 void player_move_fleet(Player* player, Galaxy* galaxy, int sx, int sy, int tx, int ty, int power)
 {
     if (is_move_valid(player, galaxy, sx, sy, tx, ty, power)) {
-        printf("OK\n");
+        // Add ships to or create incoming fleet in sector (tx, ty)
+        Fleet* f_dst = player->find_incoming(
+                player, galaxy, (unsigned short int) tx, (unsigned short int) ty);
+
+        if (f_dst) {
+            f_dst->power += (unsigned int) power;
+        } else {
+            galaxy->sectors[sx][sy]->incoming->add(galaxy->sectors[sx][sy]->incoming, f_dst);
+        }
+
+        // Remove ships from or delete fleet at sector (sx, sy)
+        Fleet* f_src = player->find_fleet(player, (unsigned short int) sx, (unsigned short int) sy);
+        assert(f_src);
+        f_src->power -= (unsigned int) power;
+        if (f_src->power == 0) {
+            int index = get_index_in_list(player->fleets, f_src);
+            assert(index >= 0);
+            player->fleets->remove_at(player->fleets, (unsigned int) index);
+            galaxy->sectors[sx][sy]->fleet->destroy(galaxy->sectors[sx][sy]->fleet);
+            galaxy->sectors[sx][sy]->fleet = NULL;
+        }
+
+        // Log moving fleets for human player
+        if (galaxy->players->data[0] == player)
+            log_move_fleet((unsigned short int) sx, (unsigned short int) sy,
+                           (unsigned short int) tx, (unsigned short int) ty,
+                           (unsigned int) power);
     }
 }
 
@@ -209,6 +256,7 @@ Player* player_create(char symbol, char* color)
     player->play = NULL;
     player->home_planet = get_player_home_planet;
     player->find_fleet = player_find_fleet;
+    player->find_incoming = player_find_incoming_fleet;
     player->move_fleet = player_move_fleet;
     player->update_resources = player_update_resources;
     player->build_ships = player_build_ships;

@@ -292,4 +292,9 @@ void cheat(Galaxy *galaxy)
     display_sectors(galaxy, true);
 }
 
-
+void log_move_fleet(unsigned short int sx, unsigned short int sy,
+                    unsigned short int tx, unsigned short int ty,
+                    unsigned int power)
+{
+    printf("Moving %d firepower from (%hu, %hu) to (%hu, %hu)...\n", power, sx, sy, tx, ty);
+}

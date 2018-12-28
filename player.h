@@ -18,13 +18,17 @@ struct Player {
     LinkedList* planets;                   // list of planets owned by the player
     LinkedList* fleets;                    // list of fleets owned by the player
 
-    void (*play)(Player*, Galaxy*);        // player strategy for one turn
+
     Planet* (*home_planet)(Player*);       // returns the player's home planet (if any)
-    Fleet* (*find_fleet)(Player*, unsigned short int, unsigned short int); // returns fleet at (x,y)
+
+    Fleet* (*find_fleet)(Player*, unsigned short int, unsigned short int); // fleet in sector
+    Fleet* (*find_incoming)(Player*, Galaxy*, unsigned short int, unsigned short int); // incoming
     void (*move_fleet)(Player*, Galaxy*, int, int, int, int, int);         // moves a fleet
+
     void (*update_resources)(Player*);     // updates resources for player's planets
     void (*build_ships)(Player*, Galaxy*); // builds ships for the player where applicable
 
+    void (*play)(Player*, Galaxy*);        // player strategy for one turn
     void (*destroy)(Player*);              // frees the player
 };
 

@@ -5,8 +5,8 @@
 #ifndef GAL4XY_SECTOR_H
 #define GAL4XY_SECTOR_H
 
-#include <vector.h>
 #include <stdbool.h>
+#include "include/vector.h"
 #include "planet.h"
 #include "fleet.h"
 

@@ -10,6 +10,7 @@
 #include "galaxy.h"
 #include "color.h"
 #include "io.h"
+#include "utils.h"
 
 /*
  * Reads at most n characters (newline included) into str. If present, the newline is removed.
@@ -215,7 +216,7 @@ void display_indexes()
     for (unsigned short int i = 0; i < SIZE; i++) {
         if (i == 0)
             printf("    ");
-        printf(" %hu  ", i);
+        printf("   %hu  ", i);
     }
     printf("\n");
 }
@@ -226,7 +227,7 @@ void display_separator()
     for (unsigned short int j = 0; j < SIZE; j++) {
         if (j == 0)
             printf("   +");
-        printf("---+");
+        printf("-----+");
     }
     printf("\n");
 }
@@ -237,35 +238,48 @@ void display_sectors(Galaxy* galaxy, bool cheat)
     for (unsigned short int i = 0; i < SIZE; i++) {
         for (unsigned short int j = 0; j < SIZE; j++) {
             Sector* sector = galaxy->sectors[i][j];
+            Player* human = galaxy->players->data[0];
 
             if (j == 0)
                 printf(" %hu |", i);
-            char symbol;
+            char player_symbol;
+            char human_fleet = ' ';
+            char inc_human_fleet = ' ';
             char* color_prefix = "";
             char* color_suffix = "";
+
             if (cheat) {
                 if (sector->has_planet) {
                     if (sector->planet->owner) {
-                        symbol = sector->planet->owner->symbol;
+                        player_symbol = sector->planet->owner->symbol;
                         color_prefix = sector->planet->owner->color;
                     } else {
-                        symbol = O_NONE;
+                        player_symbol = O_NONE;
                         color_prefix = YELLOW;
                     }
                     color_suffix = RESET;
                 } else {
-                    symbol = (char) ' ';
+                    player_symbol = (char) ' ';
                 }
             } else {
-                symbol = (bool) sector->explored->data[0]
+                player_symbol = (bool) sector->explored->data[0]
                         ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
                         : O_NONE;
             }
-            if (sector->explored->data[0]) {
-                color_prefix = sector->planet->owner->color;
+
+            if (sector->fleet && sector->fleet->owner == galaxy->players->data[0])
+                human_fleet = '.';
+
+            if (has_incoming_fleet(sector, (Player*) galaxy->players->data[0]))
+                inc_human_fleet = '!';
+
+            if (sector->explored->data[0] || inc_human_fleet == '!') {
+                color_prefix = human->color;
                 color_suffix = RESET;
             }
-            printf(" %s%c%s |", color_prefix, symbol, color_suffix);
+
+            printf(" %s%c%c%c%s |",
+                    color_prefix, human_fleet, inc_human_fleet, player_symbol, color_suffix);
         }
         printf("\n");
         display_separator();

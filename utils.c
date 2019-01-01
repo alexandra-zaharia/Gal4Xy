@@ -26,3 +26,20 @@ int get_index_in_list(LinkedList* list, void* item)
     }
     return -1;
 }
+
+/*
+ * Returns true if the sector has an incoming fleet belonging to the specified player.
+ */
+bool has_incoming_fleet(Sector* sector, Player* player)
+{
+    if (!sector->incoming) return false;
+    if (sector->incoming->size == 0) return false;
+
+    for (unsigned int i = 0; i < sector->incoming->size; i++) {
+        Fleet* fleet = sector->incoming->data[i];
+        if (fleet->owner == player)
+            return true;
+    }
+
+    return false;
+}

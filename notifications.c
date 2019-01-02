@@ -23,7 +23,7 @@ void notification_header(char symbol)
  */
 void notification_ships_built(unsigned short int x, unsigned short int y, unsigned int power)
 {
-    printf(">>>\n>>> Your firepower in sector (%hu, %hu) has increased by %hu.\n>>>\n",
+    printf(">>>\n>>> Your firepower in sector (%hu, %hu) has increased by %u.\n>>>\n",
            x, y, power);
     notification_header('#');
 }

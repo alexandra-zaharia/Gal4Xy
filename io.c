@@ -182,7 +182,7 @@ void prompt(Player* player, Galaxy* galaxy)
 
 void display_greeting(Galaxy* galaxy, bool cheat)
 {
-    if (galaxy->turn == 0) {
+    if (galaxy->turn == 1 || cheat) {
         Player* human = (Player*) galaxy->players->data[0];
         int len_greeting = printf(
                 BOLDWHITE "Welcome to this galaxy! Your home planet is in sector "
@@ -211,29 +211,102 @@ void log_turn(Galaxy* galaxy)
 }
 
 
-void display_indexes()
+void display_indexes(Galaxy* galaxy, bool cheat)
 {
     for (unsigned short int i = 0; i < SIZE; i++) {
         if (i == 0)
             printf("    ");
         printf(" %hu  ", i);
+        if (cheat)
+            for (unsigned int k = 0; k < galaxy->players->size - 1; k++)
+                printf(" ");
     }
     printf("\n");
 }
 
 
-void display_separator()
+void display_separator(Galaxy* galaxy, bool cheat)
 {
     for (unsigned short int j = 0; j < SIZE; j++) {
         if (j == 0)
             printf("   +");
-        printf("---+");
+        if (!cheat) {
+            printf("---+");
+        } else {
+            printf("--");
+            for (unsigned int k = 0; k < galaxy->players->size; k++)
+                printf("-");
+            printf("+");
+        }
     }
     printf("\n");
 }
 
 
-void display_sectors(Galaxy* galaxy, bool cheat)
+void display_sectors_cheat(Galaxy* galaxy)
+{
+    for (unsigned short int i = 0; i < SIZE; i++) {
+        for (unsigned short int j = 0; j < SIZE; j++) {
+            Sector* sector = galaxy->sectors[i][j];
+            char* color_suffix = RESET;
+            unsigned int k;
+
+            if (j == 0)
+                printf(" %hu |", i);
+
+            char player_fleet = ' ';
+            char* player_fleet_color_prefix = "";
+
+            char player_symbol;
+            char* player_symbol_color_prefix = "";
+
+            if (sector->has_planet) {
+                if (sector->planet->owner) {
+                    player_symbol = sector->planet->owner->symbol;
+                    player_symbol_color_prefix = sector->planet->owner->color;
+                } else {
+                    player_symbol = O_NONE;
+                    player_symbol_color_prefix = YELLOW;
+                }
+            } else {
+                player_symbol = (char) ' ';
+            }
+
+            if (sector->fleet) {
+                player_fleet = '.';
+                player_fleet_color_prefix = sector->fleet->owner->color;
+            }
+
+            size_t buffer_length = 200;
+            char sector_buffer[buffer_length];
+
+            snprintf(sector_buffer, buffer_length,
+                    "%s%c%s%s%c%s",
+                    player_fleet_color_prefix, player_fleet, color_suffix,
+                    player_symbol_color_prefix, player_symbol, color_suffix);
+
+            for (k = 0; k < galaxy->players->size; k++) {
+                Player *player = (Player*) galaxy->players->data[k];
+                char inc_fleet = ' ';
+                char* inc_fleet_color_prefix = "";
+                if (has_incoming_fleet(sector, player)) {
+                    inc_fleet = '!';
+                    inc_fleet_color_prefix = player->color;
+                }
+                snprintf(&sector_buffer[strlen(sector_buffer)], buffer_length,
+                        "%s%c%s",
+                        inc_fleet_color_prefix, inc_fleet, color_suffix);
+            }
+            snprintf(&sector_buffer[strlen(sector_buffer)], buffer_length, "|");
+            printf("%s", sector_buffer);
+        }
+        printf("\n");
+        display_separator(galaxy, true);
+    }
+}
+
+
+void display_sectors(Galaxy* galaxy)
 {
     for (unsigned short int i = 0; i < SIZE; i++) {
         for (unsigned short int j = 0; j < SIZE; j++) {
@@ -253,23 +326,9 @@ void display_sectors(Galaxy* galaxy, bool cheat)
             char inc_human_fleet = ' ';
             char* inc_human_fleet_color_prefix = "";
 
-            if (cheat) {
-                if (sector->has_planet) {
-                    if (sector->planet->owner) {
-                        player_symbol = sector->planet->owner->symbol;
-                        player_symbol_color_prefix = sector->planet->owner->color;
-                    } else {
-                        player_symbol = O_NONE;
-                        player_symbol_color_prefix = YELLOW;
-                    }
-                } else {
-                    player_symbol = (char) ' ';
-                }
-            } else {
-                player_symbol = (bool) sector->explored->data[0]
-                        ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
-                        : O_NONE;
-            }
+            player_symbol = (bool) sector->explored->data[0]
+                ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
+                : O_NONE;
 
             if (sector->fleet && sector->fleet->owner == human) {
                 human_fleet = '.';
@@ -290,7 +349,7 @@ void display_sectors(Galaxy* galaxy, bool cheat)
                     inc_human_fleet_color_prefix, inc_human_fleet, color_suffix);
         }
         printf("\n");
-        display_separator();
+        display_separator(galaxy, false);
     }
 }
 
@@ -299,9 +358,9 @@ void galaxy_display(Galaxy* galaxy)
 {
     display_greeting(galaxy, false);
     log_turn(galaxy);
-    display_indexes();
-    display_separator();
-    display_sectors(galaxy, false);
+    display_indexes(galaxy, false);
+    display_separator(galaxy, false);
+    display_sectors(galaxy);
 }
 
 
@@ -309,14 +368,14 @@ void cheat(Galaxy *galaxy)
 {
     display_greeting(galaxy, true);
     log_turn(galaxy);
-    display_indexes();
-    display_separator();
-    display_sectors(galaxy, true);
+    display_indexes(galaxy, true);
+    display_separator(galaxy, true);
+    display_sectors_cheat(galaxy);
 }
 
 void log_move_fleet(unsigned short int sx, unsigned short int sy,
                     unsigned short int tx, unsigned short int ty,
                     unsigned int power)
 {
-    printf("Moving %d firepower from (%hu, %hu) to (%hu, %hu)...\n", power, sx, sy, tx, ty);
+    printf("Moving %u firepower from (%hu, %hu) to (%hu, %hu)...\n", power, sx, sy, tx, ty);
 }

@@ -7,10 +7,19 @@ A turn-based 4X game where you play against the computer to conquer the galaxy
   * The galaxy and planets are initialized, and home planets are randomly chosen for the human and AI players.
   * By default, only two players are created, but the game can handle multiple players. 
   * The galaxy may be displayed for the human player.
-  * The galaxy may be displayed in "cheat" mode (all planets are visible).
+  * The galaxy may be displayed in "cheat" mode (all planets are visible, all (incoming) fleets of all players are visible).
   * The main game loop. 
+  * The player may display her planets.
+  * The player may display her fleets.
+  * The player may move her fleets to a designated sector.
 
 ## TODO
-  * Ensure that player symbols/colors are unique.
-  * Take into account dark/light background for console text.
-  * Take all AI players into account (incoming fleet) when displaying the galaxy in cheat mode.
+  * [ ] Ensure that player symbols/colors are unique.
+  * [ ] Take into account dark/light background for console text.
+  * [x] Take all AI players into account (incoming fleet) when displaying the galaxy in cheat mode.
+  * [ ] Implement handling of incoming fleets:
+      * [ ] Exploration (sectors)
+      * [ ] Colonization (planets)
+      * [ ] Battles between two players
+      * [ ] Battles between more than two players
+  * [ ] Implement AI.

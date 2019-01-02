@@ -216,7 +216,7 @@ void display_indexes()
     for (unsigned short int i = 0; i < SIZE; i++) {
         if (i == 0)
             printf("    ");
-        printf("   %hu  ", i);
+        printf(" %hu  ", i);
     }
     printf("\n");
 }
@@ -227,7 +227,7 @@ void display_separator()
     for (unsigned short int j = 0; j < SIZE; j++) {
         if (j == 0)
             printf("   +");
-        printf("-----+");
+        printf("---+");
     }
     printf("\n");
 }
@@ -239,25 +239,29 @@ void display_sectors(Galaxy* galaxy, bool cheat)
         for (unsigned short int j = 0; j < SIZE; j++) {
             Sector* sector = galaxy->sectors[i][j];
             Player* human = galaxy->players->data[0];
+            char* color_suffix = RESET;
 
             if (j == 0)
                 printf(" %hu |", i);
-            char player_symbol;
+
             char human_fleet = ' ';
+            char* human_fleet_color_prefix = "";
+
+            char player_symbol;
+            char* player_symbol_color_prefix = "";
+
             char inc_human_fleet = ' ';
-            char* color_prefix = "";
-            char* color_suffix = "";
+            char* inc_human_fleet_color_prefix = "";
 
             if (cheat) {
                 if (sector->has_planet) {
                     if (sector->planet->owner) {
                         player_symbol = sector->planet->owner->symbol;
-                        color_prefix = sector->planet->owner->color;
+                        player_symbol_color_prefix = sector->planet->owner->color;
                     } else {
                         player_symbol = O_NONE;
-                        color_prefix = YELLOW;
+                        player_symbol_color_prefix = YELLOW;
                     }
-                    color_suffix = RESET;
                 } else {
                     player_symbol = (char) ' ';
                 }
@@ -267,19 +271,23 @@ void display_sectors(Galaxy* galaxy, bool cheat)
                         : O_NONE;
             }
 
-            if (sector->fleet && sector->fleet->owner == galaxy->players->data[0])
+            if (sector->fleet && sector->fleet->owner == human) {
                 human_fleet = '.';
-
-            if (has_incoming_fleet(sector, (Player*) galaxy->players->data[0]))
-                inc_human_fleet = '!';
-
-            if (sector->explored->data[0] || inc_human_fleet == '!') {
-                color_prefix = human->color;
-                color_suffix = RESET;
+                human_fleet_color_prefix = human->color;
             }
 
-            printf(" %s%c%c%c%s |",
-                    color_prefix, human_fleet, inc_human_fleet, player_symbol, color_suffix);
+            if (has_incoming_fleet(sector, human)) {
+                inc_human_fleet = '!';
+                inc_human_fleet_color_prefix = human->color;
+            }
+
+            if (sector->explored->data[0])
+                player_symbol_color_prefix = human->color;
+
+            printf("%s%c%s%s%c%s%s%c%s|",
+                    human_fleet_color_prefix, human_fleet, color_suffix,
+                    player_symbol_color_prefix, player_symbol, color_suffix,
+                    inc_human_fleet_color_prefix, inc_human_fleet, color_suffix);
         }
         printf("\n");
         display_separator();

@@ -170,8 +170,10 @@ void player_move_fleet(
         }
 
         // Log moving fleets for human player
-        if (galaxy->players->data[0] == player)
+        if (galaxy->players->data[0] == player) {
             log_move_fleet(sx, sy, tx, ty, power);
+            galaxy->display(galaxy);
+        }
     }
 }
 

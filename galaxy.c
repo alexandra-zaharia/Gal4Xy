@@ -55,8 +55,9 @@ bool home_planets_initialize(Galaxy* galaxy, Vector* planets)
         Player* player = (Player*) galaxy->players->data[i];
 
         // Add home planet to player's planets
-        player->planets->insert_start(player->planets, planets->data[home_planets[i]]);
-        Planet* home_planet = (Planet*) player->planets->head->data;
+        Planet* home_planet = (Planet*) planets->data[home_planets[i]];
+        player->home_planet = home_planet;
+        player->planets->insert_start(player->planets, home_planet);
         home_planet->owner = player;
 
         // Mark the home planet sector as explored for the player
@@ -148,16 +149,22 @@ void galaxy_update(Galaxy* galaxy)
     notification_header('#');
     if (++galaxy->turn == 1) return;
 
-    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+    unsigned int i;
+    for (i = 0; i < galaxy->players->size; i++) {
         Player* player = (Player*) galaxy->players->data[i];
         player->update_resources(player);
+    }
+
+    for (i = 0; i < SIZE; i++)
+        for (unsigned int j = 0; j < SIZE; j++)
+            if (galaxy->sectors[i][j]->incoming && galaxy->sectors[i][j]->incoming->size > 0)
+                galaxy->sectors[i][j]->update(galaxy->sectors[i][j], galaxy);
+
+    for (i = 0; i < galaxy->players->size; i++) {
+        Player* player = (Player*) galaxy->players->data[i];
         player->build_ships(player, galaxy);
     }
 
-    for (unsigned int i = 0; i < SIZE; i++)
-        for (unsigned int j = 0; j < SIZE; j++)
-            if (galaxy->sectors[i][j]->incoming->size > 0)
-                galaxy->sectors[i][j]->update(galaxy->sectors[i][j], galaxy);
 }
 
 

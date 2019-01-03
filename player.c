@@ -14,16 +14,6 @@
 
 
 /*
- * Returns the player's home planet, or NULL if the player has no more planets left.
- */
-Planet* get_player_home_planet(Player* player)
-{
-    if (!player->planets || !player->planets->head) return NULL;
-    return (Planet*) player->planets->head->data;
-}
-
-
-/*
  * Frees (de-allocates) the player.
  */
 void player_free(Player* player)
@@ -217,6 +207,44 @@ void player_add_fleet(Player* player, Fleet* fleet)
 
 
 /*
+ * Returns the index in the player's list of planets at which to insert a new given planet, such
+ * that the player's planets are sorted by ascending sector coordinates. Returns -1 if the new
+ * planet needs to be inserted at the end of the player's list of planets.
+ */
+int player_insert_planet_at_index(Player* player, Planet* to_insert)
+{
+    int index = -1;
+
+    for (DNode* node = player->planets->head; node; node = node->next) {
+        ++index;
+        Planet* planet = node->data;
+        if (to_insert->x < planet->x) return index;
+        if (to_insert->x == planet->x) {
+            if (to_insert->y < planet->y) return index;
+            return index + 1;
+        }
+    }
+
+    return -1;
+}
+
+
+/*
+ * Adds a new planet to the player's list of planets, such that the player's planets are sorted by
+ * ascending sector coordinates.
+ */
+void player_add_planet(Player* player, Planet* planet)
+{
+    int index = player_insert_planet_at_index(player, planet);
+    if (index < 0) {
+        player->planets->insert_end(player->planets, planet);
+    } else {
+        player->planets->insert_at(player->planets, planet, (unsigned int) index);
+    }
+}
+
+
+/*
  * Builds ships on every planet owned by the player having enough resources.
  */
 void player_build_ships(Player* player, Galaxy* galaxy)
@@ -228,15 +256,15 @@ void player_build_ships(Player* player, Galaxy* galaxy)
             Sector* sector = galaxy->sectors[planet->x][planet->y];
             if (!sector->fleet) {
                 sector->fleet = fleet_create(sector->x, sector->y, player, power);
-                player_add_fleet(player, sector->fleet);
+                player->add_fleet(player, sector->fleet);
             } else {
                 sector->fleet->power += power;
             }
             planet->res_total -= (unsigned short int) (power * UNIT_COST);
 
-            // Log built ships for human player
+            // Notify the human player that ships were built
             if (galaxy->players->data[0] == player)
-                notification_ships_built(sector->x, sector->y, power);
+                notify_ships_built(sector, power);
         }
     }
 }
@@ -261,7 +289,8 @@ Player* player_create(char symbol, char* color)
     }
 
     player->play = NULL;
-    player->home_planet = get_player_home_planet;
+    player->add_fleet = player_add_fleet;
+    player->add_planet = player_add_planet;
     player->find_fleet = player_find_fleet;
     player->find_incoming = player_find_incoming_fleet;
     player->move_fleet = player_move_fleet;
@@ -272,6 +301,7 @@ Player* player_create(char symbol, char* color)
     player->symbol = symbol;
     player->color = color;
 
+    player->home_planet = NULL;
     player->fleets = NULL;
     player->planets = linked_list_create();
     if (!player->planets) {

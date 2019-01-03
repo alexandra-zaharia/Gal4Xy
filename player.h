@@ -15,11 +15,12 @@ struct Player {
     char symbol;                           // symbol associated to the player
     char* color;                           // player color for galaxy display
 
+    Planet* home_planet;                   // player's home planet (if any)
     LinkedList* planets;                   // list of planets owned by the player
     LinkedList* fleets;                    // list of fleets owned by the player
 
-
-    Planet* (*home_planet)(Player*);       // returns the player's home planet (if any)
+    void (*add_fleet)(Player*, Fleet*);    // adds a fleet to the player's fleets
+    void (*add_planet)(Player*, Planet*);  // adds a planet to the player's planets
 
     Fleet* (*find_fleet)(Player*, unsigned short int, unsigned short int); // fleet in sector
     Fleet* (*find_incoming)(Player*, Galaxy*, unsigned short int, unsigned short int); // incoming

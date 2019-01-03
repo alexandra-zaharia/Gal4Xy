@@ -2,10 +2,13 @@
 // Created by Alexandra Zaharia on 28/12/18.
 //
 
-#include <malloc.h>
+#include <stdlib.h>
+#include <limits.h>
 #include "galaxy.h"
+#include "player.h"
 #include "sector.h"
 #include "error.h"
+#include "notifications.h"
 
 
 /*
@@ -37,11 +40,70 @@ void sector_free(Sector* sector)
 
 
 /*
+ * Marks the given sector as explored for the specified player.
+ */
+void sector_mark_explored(Sector* sector, Player* player, Galaxy* galaxy)
+{
+    unsigned int player_index = UINT_MAX;
+
+    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        Player* current_player = galaxy->players->data[i];
+        if (player == current_player) {
+            player_index = i;
+            break;
+        }
+    }
+
+    sector->explored->data[player_index] = (void*) true;
+}
+
+
+/*
+ * Determines whether there is a conflict in a given sector. A conflict translates to the presence
+ * of fleets belonging to at least two players. Fleets may be in place (sector->fleet) or incoming.
+ */
+bool conflict(Sector* sector)
+{
+    if (!sector->incoming) return false;
+    if (sector->incoming->size > 1) return true;
+
+    // There is precisely one incoming fleet.
+    if (!sector->fleet) return false;
+    Fleet* incoming = sector->incoming->data[0];
+    return sector->fleet->owner != incoming->owner;
+}
+
+
+/*
  * Updates the sector, as it contains incoming fleets.
  */
 void sector_update(Sector* sector, Galaxy* galaxy)
 {
-    printf("sector update: (%hu, %hu)\n", sector->x, sector->y);
+    if (conflict(sector)) {
+        printf("Conflict in sector (%hu, %hu)\n", sector->x, sector->y);
+    } else {
+        Fleet* fleet = (Fleet*) sector->incoming->data[0];
+        sector->fleet = fleet;
+        fleet->owner->add_fleet(fleet->owner, fleet);
+        sector->incoming->remove(sector->incoming, 0);
+
+        sector->mark_explored(sector, fleet->owner, galaxy);
+
+        if (sector->has_planet) {
+            sector->planet->owner = fleet->owner;
+            fleet->owner->add_planet(fleet->owner, sector->planet);
+            if (galaxy->players->data[0] == fleet->owner)
+                notify_planet_colonized(sector);
+        } else {
+            if (sector->res_bonus > 0) {
+                Planet* home = fleet->owner->home_planet;
+                home->res_total += sector->res_bonus;
+                if (galaxy->players->data[0] == fleet->owner)
+                    notify_sector_explored(sector, home);
+                sector->res_bonus = 0;
+            }
+        }
+    }
 }
 
 
@@ -65,6 +127,7 @@ Sector* sector_create(unsigned short int x, unsigned short int y)
     sector->fleet = NULL;
     sector->incoming = NULL;
 
+    sector->mark_explored = sector_mark_explored;
     sector->update = sector_update;
     sector->destroy = sector_free;
 

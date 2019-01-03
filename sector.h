@@ -28,6 +28,7 @@ struct Sector {
     Fleet* fleet;                     // fleet in place in this sector
     Vector* incoming;                 // incoming fleets for this sector
 
+    void (*mark_explored)(Sector*, Player*, Galaxy*); // marks sector as explored for player
     void (*update)(Sector*, Galaxy*); // updates the sector
     void (*destroy)(Sector*);         // frees the sector
 };

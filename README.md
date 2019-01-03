@@ -1,5 +1,5 @@
 # Gal4Xy
-A turn-based 4X game where you play against the computer to conquer the galaxy
+A turn-based 4X strategy game where you play against the computer to conquer the galaxy
 
 **This is a work in progress! The README will be updated when more functionality is added and when the game actually becomes playable.**
 

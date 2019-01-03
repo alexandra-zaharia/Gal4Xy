@@ -191,8 +191,9 @@ void display_greeting(Galaxy* galaxy, bool cheat)
         if (cheat) {
             for (unsigned int i = 1; i < galaxy->players->size; i++) {
                 Player *ai = (Player *) galaxy->players->data[i];
-                printf("The AI home planet is in sector %s(%u, %u)" BOLDWHITE ".\n" RESET,
-                       ai->color, ai->home_planet->x, ai->home_planet->y);
+                printf("The AI (%s%c%s) home planet is in sector %s(%u, %u)" BOLDWHITE ".\n" RESET,
+                        ai->color, ai->symbol, RESET,
+                        ai->color, ai->home_planet->x, ai->home_planet->y);
             }
         }
         len_greeting -= (int) (2 * strlen(BOLDWHITE) + strlen(human->color) + strlen(RESET));

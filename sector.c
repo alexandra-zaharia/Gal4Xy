@@ -40,20 +40,38 @@ void sector_free(Sector* sector)
 
 
 /*
+ * Returns the index of a given player among all the players. If the player is not found, returns
+ * UINT_MAX.
+ */
+unsigned int get_player_index(Player* player, Galaxy* galaxy)
+{
+    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        Player* current_player = galaxy->players->data[i];
+        if (player == current_player) {
+            return i;
+        }
+    }
+
+    return UINT_MAX;
+}
+
+
+/*
+ * Determines whether the sector has already been explored by the given player.
+ */
+bool sector_is_explored(Sector* sector, Player* player, Galaxy* galaxy)
+{
+    unsigned int player_index = get_player_index(player, galaxy);
+    return (bool) sector->explored->data[player_index];
+}
+
+
+/*
  * Marks the given sector as explored for the specified player.
  */
 void sector_mark_explored(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = UINT_MAX;
-
-    for (unsigned int i = 0; i < galaxy->players->size; i++) {
-        Player* current_player = galaxy->players->data[i];
-        if (player == current_player) {
-            player_index = i;
-            break;
-        }
-    }
-
+    unsigned int player_index = get_player_index(player, galaxy);
     sector->explored->data[player_index] = (void*) true;
 }
 
@@ -127,6 +145,7 @@ Sector* sector_create(unsigned short int x, unsigned short int y)
     sector->fleet = NULL;
     sector->incoming = NULL;
 
+    sector->is_explored = sector_is_explored;
     sector->mark_explored = sector_mark_explored;
     sector->update = sector_update;
     sector->destroy = sector_free;

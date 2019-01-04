@@ -19,4 +19,4 @@ add_executable(Gal4Xy
         fleet.c
         ai.c)
 
-target_link_libraries(Gal4Xy ${CMAKE_SOURCE_DIR}/lib/libgcds.a)
+target_link_libraries(Gal4Xy ${CMAKE_SOURCE_DIR}/lib/libgcds.a m)

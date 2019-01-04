@@ -17,6 +17,7 @@ A turn-based 4X strategy game where you play against the computer to conquer the
   * The player may move her fleets to a designated sector.
   * When a player explores a previously unexplored sector, a random amount of bonus resources are gathered and sent to the player's home planet. (The resource bonus is then set to zero, ensuring that only the first player in a sector receives a bonus.)
   * When a sector containing a planet without owner is explored, the player having sent the fleet colonizes that planet.
+  * A dumb AI has been implemented. It remembers nothing of past events and can view only the sectors that it has explored. It aims to explore 100% of the galaxy while also performing a semblance of defending already owned planets.
 
 ## TODO
   * [ ] Ensure that player symbols/colors are unique.
@@ -27,4 +28,7 @@ A turn-based 4X strategy game where you play against the computer to conquer the
       * [x] Colonization (planets)
       * [ ] Battles between two players
       * [ ] Battles between more than two players
-  * [ ] Implement AI.
+  * [ ] Implement AI (AI does not cheat):
+      * [x] Dumb AI: has no memory of past events
+      * [ ] Average AI: remembers past events
+      * [ ] Smart AI: remembers past events (and does stuff better than the average AI -- what and how precisely is to be determined)  

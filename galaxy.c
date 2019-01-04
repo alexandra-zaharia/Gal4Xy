@@ -62,7 +62,7 @@ bool home_planets_initialize(Galaxy* galaxy, Vector* planets)
 
         // Mark the home planet sector as explored for the player
         Sector* sector = galaxy->sectors[home_planet->x][home_planet->y];
-        sector->explored->data[i] = (void*) true;
+        sector->mark_explored(sector, player, galaxy);
 
         // Create a fleet with firepower 1 in the home planet sector and add it to player's fleets
         Fleet* fleet = fleet_create(home_planet->x, home_planet->y, player, 1);

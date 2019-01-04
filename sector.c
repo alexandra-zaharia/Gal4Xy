@@ -99,6 +99,12 @@ void sector_update(Sector* sector, Galaxy* galaxy)
 {
     if (conflict(sector)) {
         printf("Conflict in sector (%hu, %hu)\n", sector->x, sector->y);
+        if (sector->fleet)
+            printf("\tFleet (%c): %u power\n", sector->fleet->owner->symbol, sector->fleet->power);
+        for (unsigned int i = 0; i < sector->incoming->size; i++) {
+            Fleet* incoming = sector->incoming->data[i];
+            printf("\tIncoming (%c): %u power\n", incoming->owner->symbol, incoming->power);
+        }
     } else {
         Fleet* fleet = (Fleet*) sector->incoming->data[0];
         sector->fleet = fleet;

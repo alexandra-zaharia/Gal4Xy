@@ -101,7 +101,7 @@ void prompt_move_ships(Player* player, Galaxy* galaxy)
 }
 
 
-void find_fleets(Player* player)
+void show_fleets(Player *player)
 {
     if (!player->fleets->size) {
         printf("\nYou have no fleet in the whole wide galaxy. :-(\n");
@@ -118,7 +118,7 @@ void find_fleets(Player* player)
 }
 
 
-void find_planets(Player* player)
+void show_planets(Player *player)
 {
     printf("You have %d planet%s:\n", player->planets->size, player->planets->size > 1 ? "s" : "");
     for (DNode* node = player->planets->head; node; node = node->next) {
@@ -153,9 +153,9 @@ void prompt(Player* player, Galaxy* galaxy)
             case 'm':
             case 'M': prompt_move_ships(player, galaxy); break;
             case 'f':
-            case 'F': find_fleets(player); break;
+            case 'F': show_fleets(player); break;
             case 'p':
-            case 'P': find_planets(player); break;
+            case 'P': show_planets(player); break;
             case 'g':
             case 'G': galaxy->display(galaxy); break;
             case 't':
@@ -327,7 +327,7 @@ void display_sectors(Galaxy* galaxy)
             char inc_human_fleet = ' ';
             char* inc_human_fleet_color_prefix = "";
 
-            player_symbol = (bool) sector->explored->data[0]
+            player_symbol = sector->is_explored(sector, human, galaxy)
                 ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
                 : O_NONE;
 
@@ -341,8 +341,11 @@ void display_sectors(Galaxy* galaxy)
                 inc_human_fleet_color_prefix = human->color;
             }
 
-            if (sector->explored->data[0])
+            if (sector->is_explored(sector, human, galaxy)) {
                 player_symbol_color_prefix = human->color;
+                if (sector->has_planet)
+                    player_symbol_color_prefix = sector->planet->owner->color;
+            }
 
             printf("%s%c%s%s%c%s%s%c%s|",
                     human_fleet_color_prefix, human_fleet, color_suffix,

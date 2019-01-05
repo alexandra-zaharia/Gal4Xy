@@ -5,7 +5,7 @@
 #include "player.h"
 #include "galaxy.h"
 #include <stdlib.h>
-#include <zconf.h>
+#include <limits.h>
 #include "utils.h"
 
 /*

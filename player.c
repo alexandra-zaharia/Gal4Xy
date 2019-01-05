@@ -245,6 +245,43 @@ void player_add_planet(Player* player, Planet* planet)
 
 
 /*
+ * Removes a planet from the player's list of planets. Updates the home planet if necessary. If this
+ * is not possible, eliminates the player from the game.
+ */
+void player_remove_planet(Player* player, Planet* planet, Galaxy* galaxy)
+{
+    int index = get_index_in_list(player->planets, planet);
+    assert (index >= 0);
+    player->planets->remove_at(player->planets, (unsigned int) index);
+    if (get_player_index(player, galaxy) == 0) // notify human player that a planet has been lost
+        notify_planet_lost(planet);
+
+    if (player->home_planet == planet) {
+        player->reassign_home_planet(player);
+    }
+}
+
+
+/*
+ * Assigns a new planet as the player's home planet. Does nothing if the player has no more planets.
+ */
+void player_reassign_home_planet(Player* player)
+{
+    if (player->planets->size == 0)
+        return;
+
+    unsigned short int rnd = random_number(0, (unsigned short int) (player->planets->size - 1));
+    unsigned short int i = 0;
+    DNode* node = player->planets->head;
+    while (i++ < rnd) {
+        node = node->next;
+    }
+    Planet* new_home = node->data;
+    player->home_planet = new_home;
+}
+
+
+/*
  * Builds ships on every planet owned by the player having enough resources.
  */
 void player_build_ships(Player* player, Galaxy* galaxy)
@@ -263,7 +300,7 @@ void player_build_ships(Player* player, Galaxy* galaxy)
             planet->res_total -= (unsigned short int) (power * UNIT_COST);
 
             // Notify the human player that ships were built
-            if (galaxy->players->data[0] == player)
+            if (get_player_index(player, galaxy) == 0)
                 notify_ships_built(sector, power);
         }
     }
@@ -291,6 +328,8 @@ Player* player_create(char symbol, char* color)
     player->play = NULL;
     player->add_fleet = player_add_fleet;
     player->add_planet = player_add_planet;
+    player->remove_planet = player_remove_planet;
+    player->reassign_home_planet = player_reassign_home_planet;
     player->find_fleet = player_find_fleet;
     player->find_incoming = player_find_incoming_fleet;
     player->move_fleet = player_move_fleet;

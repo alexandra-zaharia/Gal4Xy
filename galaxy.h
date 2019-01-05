@@ -19,16 +19,18 @@ extern const char O_NONE;  // symbol associated to unowned sectors
 
 typedef struct Galaxy Galaxy;
 struct Galaxy {
-    Sector*** sectors;                    // pointer to 2D array of pointers to Sector
+    Sector*** sectors;                       // pointer to 2D array of pointers to Sector
     Vector* players;
 
-    bool game_over;                       // has the galaxy been conquered?
-    unsigned int turn;                    // current turn
+    unsigned int turn;                       // current turn
 
-    bool (*initialize)(Galaxy*, Vector*); // initializes the galaxy for the given players
-    void (*display)(Galaxy*);             // display the galaxy
-    void (*update)(Galaxy*);              // updates the galaxy when advancing one turn
-    void (*destroy)(Galaxy*);             // frees the galaxy
+    bool (*initialize)(Galaxy*, Vector*);    // initializes the galaxy for the given players
+    void (*display)(Galaxy*);                // display the galaxy
+    void (*update)(Galaxy*);                 // updates the galaxy when advancing one turn
+    void (*check_players)(Galaxy*);          // does any player need to be eliminated?
+    void (*remove_player)(Galaxy*, Player*); // eliminates a player from the game
+    void (*game_over)(Galaxy*);              // displays the game over screen
+    void (*destroy)(Galaxy*);                // frees the galaxy
 };
 
 Galaxy* galaxy_create();

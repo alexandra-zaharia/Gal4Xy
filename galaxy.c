@@ -165,6 +165,47 @@ void galaxy_update(Galaxy* galaxy)
         player->build_ships(player, galaxy);
     }
 
+    galaxy->check_players(galaxy); // are there any losing players?
+}
+
+
+/*
+ * Checks whether any player has no more planets left, in which case the player(s) in question are
+ * eliminated.
+ */
+void galaxy_check_players(Galaxy* galaxy)
+{
+    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        Player* player = galaxy->players->data[i];
+        if (player->planets->size == 0)
+            galaxy->remove_player(galaxy, player);
+    }
+}
+
+/*
+ * Eliminates the given player from the game. Marks the game as being over if there is only one
+ * remaining player.
+ */
+void galaxy_remove_player(Galaxy* galaxy, Player* player)
+{
+    unsigned int player_index = get_player_index(player, galaxy);
+    notify_player_eliminated(player);
+    player->destroy(player);
+    galaxy->players->remove(galaxy->players, player_index);
+
+    if (galaxy->players->size == 1)
+        galaxy->game_over(galaxy);
+}
+
+
+/*
+ * Displays the game over screen.
+ */
+void galaxy_game_over(Galaxy* galaxy)
+{
+    notify_game_over(galaxy);
+    galaxy->destroy(galaxy);
+    exit(EXIT_SUCCESS);
 }
 
 
@@ -220,10 +261,12 @@ Galaxy* galaxy_create()
     galaxy->initialize = galaxy_initialize;
     galaxy->display = galaxy_display;
     galaxy->update = galaxy_update;
+    galaxy->check_players = galaxy_check_players;
+    galaxy->remove_player = galaxy_remove_player;
+    galaxy->game_over = galaxy_game_over;
     galaxy->destroy = galaxy_free;
 
     galaxy->players = NULL;
-    galaxy->game_over = false;
     galaxy->turn = 0;
 
     galaxy->sectors = malloc(SIZE * sizeof(Sector**));

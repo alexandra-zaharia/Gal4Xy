@@ -169,7 +169,8 @@ void prompt(Player* player, Galaxy* galaxy)
                     quit = s_getc();
                 }
                 if (quit == 'y' || quit == 'Y') {
-                    galaxy->game_over = true;
+                    galaxy->destroy(galaxy);
+                    exit(EXIT_SUCCESS);
                 }
             }; break;
             default: printf("Invalid option '%c'\n", option);

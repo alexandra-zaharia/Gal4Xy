@@ -3,10 +3,10 @@
 //
 
 #include <stdlib.h>
-#include <limits.h>
 #include "galaxy.h"
 #include "player.h"
 #include "sector.h"
+#include "utils.h"
 #include "error.h"
 #include "notifications.h"
 
@@ -36,23 +36,6 @@ void sector_free(Sector* sector)
     }
 
     free(sector);
-}
-
-
-/*
- * Returns the index of a given player among all the players. If the player is not found, returns
- * UINT_MAX.
- */
-unsigned int get_player_index(Player* player, Galaxy* galaxy)
-{
-    for (unsigned int i = 0; i < galaxy->players->size; i++) {
-        Player* current_player = galaxy->players->data[i];
-        if (player == current_player) {
-            return i;
-        }
-    }
-
-    return UINT_MAX;
 }
 
 
@@ -114,10 +97,15 @@ void sector_update(Sector* sector, Galaxy* galaxy)
         sector->mark_explored(sector, fleet->owner, galaxy);
 
         if (sector->has_planet) {
+            Player* old_owner = sector->planet->owner;
+
             sector->planet->owner = fleet->owner;
             fleet->owner->add_planet(fleet->owner, sector->planet);
             if (galaxy->players->data[0] == fleet->owner)
                 notify_planet_colonized(sector);
+
+            if (old_owner) // the planet had been owned by another player but left undefended
+                old_owner->remove_planet(old_owner, sector->planet, galaxy);
         } else {
             if (sector->res_bonus > 0) {
                 Planet* home = fleet->owner->home_planet;

@@ -2,7 +2,10 @@
 // Created by azaharia on 11/12/18.
 //
 
+#include "player.h"
+#include "galaxy.h"
 #include <stdlib.h>
+#include <zconf.h>
 #include "utils.h"
 
 /*
@@ -42,4 +45,20 @@ bool has_incoming_fleet(Sector* sector, Player* player)
     }
 
     return false;
+}
+
+/*
+ * Returns the index of a given player among all the players. If the player is not found, returns
+ * UINT_MAX.
+ */
+unsigned int get_player_index(Player* player, Galaxy* galaxy)
+{
+    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        Player* current_player = galaxy->players->data[i];
+        if (player == current_player) {
+            return i;
+        }
+    }
+
+    return UINT_MAX;
 }

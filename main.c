@@ -44,14 +44,10 @@ int main()
     human->play = prompt;
     ai->play = ai_strategy;
 
-    while (!galaxy->game_over) {
+    while (true) {
         galaxy->update(galaxy);
         galaxy->display(galaxy);
         ai->play(ai, galaxy);
         human->play(human, galaxy);
     }
-
-    galaxy->destroy(galaxy);
-
-    return EXIT_SUCCESS;
 }

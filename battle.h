@@ -7,7 +7,7 @@
 
 #include "galaxy.h"
 
-unsigned int number_of_players_in_conflict(Sector*);
+Vector* players_in_conflict(Sector*);
 void battle(Sector*, Galaxy*);
 
 #endif //GAL4XY_BATTLE_H

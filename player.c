@@ -51,14 +51,13 @@ void player_update_resources(Player* player)
 }
 
 /*
- * Returns the player's incoming fleet in sector (x, y), or NULL in case the player has no incoming
- * fleet at the specified location.
+ * Returns the player's incoming fleet in the specified sector, or NULL in case the player has no
+ * incoming fleet there.
  */
-Fleet* player_find_incoming_fleet(
-        Player* player, Galaxy* galaxy, unsigned short int x, unsigned short int y)
+Fleet* player_find_incoming_fleet(Player* player, Galaxy* galaxy, Sector* sector)
 {
-    for (unsigned int i = 0; i < galaxy->sectors[x][y]->incoming->size; i++) {
-        Fleet* fleet = (Fleet*) galaxy->sectors[x][y]->incoming->data[i];
+    for (unsigned int i = 0; i < sector->incoming->size; i++) {
+        Fleet* fleet = (Fleet*) sector->incoming->data[i];
         if (fleet->owner == player)
             return fleet;
     }
@@ -67,14 +66,13 @@ Fleet* player_find_incoming_fleet(
 
 
 /*
- * Returns the player's fleet in sector (x, y), or NULL in case the player has no fleet at the
- * specified location.
+ * Returns the player's fleet the specified sector, or NULL in case the player has no fleet there.
  */
-Fleet* player_find_fleet(Player* player, unsigned short int x, unsigned short int y)
+Fleet* player_find_fleet(Player* player, Sector* sector)
 {
     for (DNode* node = player->fleets->head; node; node = node->next) {
         Fleet* fleet = (Fleet*) node->data;
-        if (fleet->x == x && fleet->y == y)
+        if (fleet->x == sector->x && fleet->y == sector->y)
             return fleet;
     }
     return NULL;
@@ -138,7 +136,7 @@ void player_move_fleet(
         unsigned int power = (unsigned int) _power;
 
         // Add ships to or create incoming fleet in sector (tx, ty)
-        Fleet* f_dst = player->find_incoming(player, galaxy, tx, ty);
+        Fleet* f_dst = player->find_incoming(player, galaxy, galaxy->sectors[tx][ty]);
 
         if (f_dst) {
             f_dst->power += power;
@@ -148,7 +146,7 @@ void player_move_fleet(
         }
 
         // Remove ships from or delete fleet at sector (sx, sy)
-        Fleet* f_src = player->find_fleet(player, sx, sy);
+        Fleet* f_src = player->find_fleet(player, galaxy->sectors[sx][sy]);
         assert(f_src);
         f_src->power -= power;
         if (f_src->power == 0) {

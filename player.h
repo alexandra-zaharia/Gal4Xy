@@ -20,12 +20,13 @@ struct Player {
     LinkedList* fleets;                      // list of fleets owned by the player
 
     void (*add_fleet)(Player*, Fleet*);      // adds a fleet to the player's fleets
+    void (*remove_fleet)(Player*, Fleet*);   // removes a fleet from the player's fleets
     void (*add_planet)(Player*, Planet*);    // adds a planet to the player's planets
     void (*remove_planet)(Player*, Planet*, Galaxy*); // removes a planet from the player's planets
     void (*reassign_home_planet)(Player*);   // reassign one of the player's planets as home planet
 
-    Fleet* (*find_fleet)(Player*, Sector*);  // fleet in sector
-    Fleet* (*find_incoming)(Player*, Galaxy*, Sector*);            // incoming fleet in sector
+    Fleet* (*find_fleet)(Player*, Sector*);                        // fleet in place in sector
+    Fleet* (*find_incoming)(Player*, Sector*);                     // incoming fleet in sector
     void (*move_fleet)(Player*, Galaxy*, int, int, int, int, int); // moves a fleet
 
     void (*update_resources)(Player*);       // updates resources for player's planets

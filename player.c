@@ -54,7 +54,7 @@ void player_update_resources(Player* player)
  * Returns the player's incoming fleet in the specified sector, or NULL in case the player has no
  * incoming fleet there.
  */
-Fleet* player_find_incoming_fleet(Player* player, Galaxy* galaxy, Sector* sector)
+Fleet* player_find_incoming_fleet(Player* player, Sector* sector)
 {
     for (unsigned int i = 0; i < sector->incoming->size; i++) {
         Fleet* fleet = (Fleet*) sector->incoming->data[i];
@@ -136,7 +136,7 @@ void player_move_fleet(
         unsigned int power = (unsigned int) _power;
 
         // Add ships to or create incoming fleet in sector (tx, ty)
-        Fleet* f_dst = player->find_incoming(player, galaxy, galaxy->sectors[tx][ty]);
+        Fleet* f_dst = player->find_incoming(player, galaxy->sectors[tx][ty]);
 
         if (f_dst) {
             f_dst->power += power;
@@ -201,6 +201,17 @@ void player_add_fleet(Player* player, Fleet* fleet)
     } else {
         player->fleets->insert_at(player->fleets, fleet, (unsigned int) index);
     }
+}
+
+
+/*
+ * Removes a fleet from the player's list of fleets.
+ */
+void player_remove_fleet(Player* player, Fleet* fleet)
+{
+    int index = get_index_in_list(player->fleets, fleet);
+    assert (index >= 0);
+    player->fleets->remove_at(player->fleets, (unsigned int) index);
 }
 
 
@@ -325,6 +336,7 @@ Player* player_create(char symbol, char* color)
 
     player->play = NULL;
     player->add_fleet = player_add_fleet;
+    player->remove_fleet = player_remove_fleet;
     player->add_planet = player_add_planet;
     player->remove_planet = player_remove_planet;
     player->reassign_home_planet = player_reassign_home_planet;

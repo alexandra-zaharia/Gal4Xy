@@ -92,34 +92,38 @@ void sector_update(Sector* sector, Galaxy* galaxy)
             Fleet* incoming = sector->incoming->data[i];
             printf("\tIncoming (%c): %u power\n", incoming->owner->symbol, incoming->power);
         }
+        battle(sector, galaxy);
+    } //else {
+
+    if (sector->incoming->size == 0) return;
+
+    Fleet* incoming = sector->incoming->data[0];
+    sector->fleet = incoming;
+    incoming->owner->add_fleet(incoming->owner, incoming);
+    sector->incoming->remove(sector->incoming, 0);
+
+    sector->mark_explored(sector, incoming->owner, galaxy);
+
+    if (sector->has_planet) {
+        Player *old_owner = sector->planet->owner;
+
+        sector->planet->owner = incoming->owner;
+        incoming->owner->add_planet(incoming->owner, sector->planet);
+        if (galaxy->players->data[0] == incoming->owner)
+            notify_planet_colonized(sector);
+
+        if (old_owner) // the planet had been owned by another player but left undefended
+            old_owner->remove_planet(old_owner, sector->planet, galaxy);
     } else {
-        Fleet* fleet = (Fleet*) sector->incoming->data[0];
-        sector->fleet = fleet;
-        fleet->owner->add_fleet(fleet->owner, fleet);
-        sector->incoming->remove(sector->incoming, 0);
-
-        sector->mark_explored(sector, fleet->owner, galaxy);
-
-        if (sector->has_planet) {
-            Player* old_owner = sector->planet->owner;
-
-            sector->planet->owner = fleet->owner;
-            fleet->owner->add_planet(fleet->owner, sector->planet);
-            if (galaxy->players->data[0] == fleet->owner)
-                notify_planet_colonized(sector);
-
-            if (old_owner) // the planet had been owned by another player but left undefended
-                old_owner->remove_planet(old_owner, sector->planet, galaxy);
-        } else {
-            if (sector->res_bonus > 0) {
-                Planet* home = fleet->owner->home_planet;
-                home->res_total += sector->res_bonus;
-                if (galaxy->players->data[0] == fleet->owner)
-                    notify_sector_explored(sector, home);
-                sector->res_bonus = 0;
-            }
+        if (sector->res_bonus > 0) {
+            Planet *home = incoming->owner->home_planet;
+            home->res_total += sector->res_bonus;
+            if (galaxy->players->data[0] == incoming->owner)
+                notify_sector_explored(sector, home);
+            sector->res_bonus = 0;
         }
     }
+//}
 }
 
 

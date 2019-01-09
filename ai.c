@@ -91,27 +91,30 @@ void ai_strategy(Player* player, Galaxy* galaxy) {
     printf("%s for AI player '%c' with an exploration ratio of %.2f\n",
            __func__, player->symbol, explored_ratio);
 
-    LinkedList* deployment_planner = linked_list_create();
+    if (unexplored->size > 0) { // explore uncharted territory
+        LinkedList *deployment_planner = linked_list_create();
 
-    for (DNode* node = player->fleets->head; node; node = node->next) {
-        Fleet* fleet = node->data;
-        if (explored_ratio < 0.25) {
-            plan_fleet_deployment(fleet, unexplored, 0, galaxy, deployment_planner);
-        } else if (explored_ratio < 0.50) {
-            plan_fleet_deployment(fleet, unexplored, 2, galaxy, deployment_planner);
-        } else if (explored_ratio < 0.75) {
-            plan_fleet_deployment(fleet, unexplored, 4, galaxy, deployment_planner);
-        } else {
-            plan_fleet_deployment(fleet, unexplored, 6, galaxy, deployment_planner);
+        for (DNode *node = player->fleets->head; node; node = node->next) {
+            Fleet *fleet = node->data;
+            if (explored_ratio < 0.25) {
+                plan_fleet_deployment(fleet, unexplored, 0, galaxy, deployment_planner);
+            } else if (explored_ratio < 0.50) {
+                plan_fleet_deployment(fleet, unexplored, 2, galaxy, deployment_planner);
+            } else if (explored_ratio < 0.75) {
+                plan_fleet_deployment(fleet, unexplored, 4, galaxy, deployment_planner);
+            } else {
+                plan_fleet_deployment(fleet, unexplored, 6, galaxy, deployment_planner);
+            }
         }
-    }
 
-    deploy_fleet(player, galaxy, deployment_planner);
+        deploy_fleet(player, galaxy, deployment_planner);
 
-    for (DNode* node = deployment_planner->head; node; node = node->next) {
-        FleetDeployment* fd = node->data;
-        free(fd);
-    }
-    deployment_planner->free(deployment_planner);
+        for (DNode *node = deployment_planner->head; node; node = node->next) {
+            FleetDeployment *fd = node->data;
+            free(fd);
+        }
+        deployment_planner->free(deployment_planner);
+    } // else regain lost colonies
+
     unexplored->free(unexplored);
 }

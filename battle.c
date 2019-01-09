@@ -60,7 +60,7 @@ int get_index_in_incoming(Fleet* incoming, Sector* sector)
 }
 
 
-void player_wins_battle(Player* winner, Player* defeated, Sector* sector)
+void player_wins_battle(Player* winner, Player* defeated, Sector* sector, Galaxy* galaxy)
 {
     assert(total_firepower(winner, sector) > total_firepower(defeated, sector));
 
@@ -98,14 +98,18 @@ battle_incoming:
         sector->incoming->remove(sector->incoming, (unsigned int) index_in_incoming);
         i_defeated->destroy(i_defeated);
     }
-    // mark explored for defeated human player
+
+    // Mark sector as explored if the defeated player is human (for display purposes).
+    unsigned int defeated_index = get_player_index(defeated, galaxy);
+    if (defeated_index == 0)
+        sector->mark_explored(sector, defeated, galaxy);
 }
 
 
 /*
  * Handles a battle between two players in a given sector.
  */
-void battle_between_two_players(Vector* players, Sector* sector)
+void battle_between_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {
     assert(players->size == 2);
 
@@ -116,9 +120,9 @@ void battle_between_two_players(Vector* players, Sector* sector)
     unsigned int power2 = total_firepower(player2, sector);
 
     if (power1 < power2) {
-        player_wins_battle(player2, player1, sector);
+        player_wins_battle(player2, player1, sector, galaxy);
     } else if (power1 > power2) {
-        player_wins_battle(player1, player2, sector);
+        player_wins_battle(player1, player2, sector, galaxy);
     } else { // tie
         printf("It's a tie\n");
     }
@@ -141,7 +145,7 @@ void battle(Sector* sector, Galaxy* galaxy)
 {
     Vector* players = players_in_conflict(sector);
     if (players->size == 2) {
-        battle_between_two_players(players, sector);
+        battle_between_two_players(players, sector, galaxy);
     } else {
         battle_between_more_than_two_players(players, sector, galaxy);
     }

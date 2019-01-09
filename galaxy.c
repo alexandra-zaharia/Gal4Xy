@@ -140,6 +140,14 @@ free_planets:
 }
 
 
+void _build_ships(Galaxy* galaxy)
+{
+    for (unsigned  int i = 0; i < galaxy->players->size; i++) {
+        Player* player = (Player*) galaxy->players->data[i];
+        player->build_ships(player, galaxy);
+    }
+}
+
 /*
  * Updates the galaxy by advancing one turn: planet resources are gathered for planets owned by
  * players, ships are built and moved, sectors are explored and battles take place where applicable.
@@ -155,15 +163,14 @@ void galaxy_update(Galaxy* galaxy)
         player->update_resources(player);
     }
 
+    _build_ships(galaxy); // before battles: normal ship building
+
     for (i = 0; i < SIZE; i++)
         for (unsigned int j = 0; j < SIZE; j++)
             if (galaxy->sectors[i][j]->incoming && galaxy->sectors[i][j]->incoming->size > 0)
                 galaxy->sectors[i][j]->update(galaxy->sectors[i][j], galaxy);
 
-    for (i = 0; i < galaxy->players->size; i++) {
-        Player* player = (Player*) galaxy->players->data[i];
-        player->build_ships(player, galaxy);
-    }
+    _build_ships(galaxy); // after battles: in case unexplored sectors yield enough resources
 
     galaxy->check_players(galaxy); // are there any losing players?
 }

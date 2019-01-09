@@ -112,8 +112,10 @@ void sector_update(Sector* sector, Galaxy* galaxy)
         if (galaxy->players->data[0] == incoming->owner)
             notify_planet_colonized(sector);
 
-        if (old_owner) // the planet had been owned by another player but left undefended
+        if (old_owner) { // the planet had been owned by another player but left undefended
             old_owner->remove_planet(old_owner, sector->planet, galaxy);
+            sector->planet->res_total = 0;
+        }
     } else {
         if (sector->res_bonus > 0) {
             Planet *home = incoming->owner->home_planet;

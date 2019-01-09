@@ -65,7 +65,7 @@ void player_wins_battle(Player* winner, Player* defeated, Sector* sector, Galaxy
     assert(total_firepower(winner, sector) > total_firepower(defeated, sector));
 
     Fleet* i_winner = winner->find_incoming(winner, sector);
-    Fleet* i_defeated = winner->find_incoming(defeated, sector);
+    Fleet* i_defeated = defeated->find_incoming(defeated, sector);
 
     if (!sector->fleet)
         goto battle_incoming;

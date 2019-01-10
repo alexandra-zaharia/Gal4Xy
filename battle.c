@@ -106,6 +106,23 @@ battle_incoming:
 }
 
 
+void battle_at_tie(Sector* sector) {
+    if (sector->fleet) {
+        Player *fleet_owner = sector->fleet->owner;
+        fleet_owner->remove_fleet(fleet_owner, sector->fleet);
+        sector->fleet->destroy(sector->fleet);
+        sector->fleet = NULL;
+    }
+
+    unsigned int number_of_incoming_fleets = sector->incoming->size;
+    for (unsigned int i = 0; i < number_of_incoming_fleets; i++) {
+        Fleet* incoming = sector->incoming->data[i];
+        incoming->destroy(incoming);
+        sector->incoming->remove(sector->incoming, number_of_incoming_fleets - i - 1);
+    }
+}
+
+
 /*
  * Handles a battle between two players in a given sector.
  */
@@ -125,6 +142,7 @@ void battle_between_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
         player_wins_battle(player1, player2, sector, galaxy);
     } else { // tie
         printf("It's a tie\n");
+        battle_at_tie(sector);
     }
 }
 

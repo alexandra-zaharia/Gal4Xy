@@ -30,6 +30,9 @@ Vector* players_in_conflict(Sector* sector)
 }
 
 
+/*
+ * Returns the total firepower of a given player in the specified sector.
+ */
 unsigned int total_firepower(Player* player, Sector* sector)
 {
     unsigned int power = 0;
@@ -60,6 +63,9 @@ int get_index_in_incoming(Fleet* incoming, Sector* sector)
 }
 
 
+/*
+ * Handles battle between two players in the given sector, where player `winner' beats `defeated'.
+ */
 void player_wins_battle(Player* winner, Player* defeated, Sector* sector, Galaxy* galaxy)
 {
     assert(total_firepower(winner, sector) > total_firepower(defeated, sector));
@@ -106,6 +112,9 @@ battle_incoming:
 }
 
 
+/*
+ * Handles a battle in the given sector ending up in a tie.
+ */
 void battle_at_tie(Sector* sector) {
     if (sector->fleet) {
         Player *fleet_owner = sector->fleet->owner;
@@ -124,7 +133,7 @@ void battle_at_tie(Sector* sector) {
 
 
 /*
- * Handles a battle between two players in a given sector.
+ * Handles a battle between two players in the given sector.
  */
 void battle_between_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {
@@ -148,7 +157,7 @@ void battle_between_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 
 
 /*
- * Handles a battle between more than two players in a given sector.
+ * Handles a battle between more than two players in the given sector.
  */
 void battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {

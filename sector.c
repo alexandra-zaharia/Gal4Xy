@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include <assert.h>
 #include "galaxy.h"
 #include "player.h"
 #include "sector.h"
@@ -93,39 +94,51 @@ void sector_update(Sector* sector, Galaxy* galaxy)
             printf("\tIncoming (%c): %u power\n", incoming->owner->symbol, incoming->power);
         }
         battle(sector, galaxy);
-    } //else {
+    }
 
     if (sector->incoming->size == 0) return;
+    assert(sector->incoming->size == 1);
 
     Fleet* incoming = sector->incoming->data[0];
-    sector->fleet = incoming;
-    incoming->owner->add_fleet(incoming->owner, incoming);
-    sector->incoming->remove(sector->incoming, 0);
+    Player* owner = incoming->owner;
 
-    sector->mark_explored(sector, incoming->owner, galaxy);
+    Fleet* in_place = owner->find_fleet(owner, sector);
+    if (in_place) {
+        in_place->power += incoming->power;
+        incoming->destroy(incoming);
+    } else {
+        owner->add_fleet(owner, incoming);
+        sector->fleet = incoming;
+    }
+
+    sector->incoming->remove(sector->incoming, 0);
+    sector->mark_explored(sector, owner, galaxy);
 
     if (sector->has_planet) {
-        Player *old_owner = sector->planet->owner;
+        Player* old_owner = sector->planet->owner;
 
-        sector->planet->owner = incoming->owner;
-        incoming->owner->add_planet(incoming->owner, sector->planet);
-        if (galaxy->players->data[0] == incoming->owner)
-            notify_planet_colonized(sector);
+        if (!old_owner || old_owner != owner) {
+            sector->planet->owner = owner;
+            owner->add_planet(owner, sector->planet);
 
-        if (old_owner) { // the planet had been owned by another player but left undefended
-            old_owner->remove_planet(old_owner, sector->planet, galaxy);
-            sector->planet->res_total = 0;
+            if (get_player_index(owner, galaxy) == 0)
+                notify_planet_colonized(sector);
+
+            // The planet had been owned by another player but left undefended
+            if (old_owner && old_owner != owner) {
+                old_owner->remove_planet(old_owner, sector->planet, galaxy);
+                sector->planet->res_total = 0;
+            }
         }
-    } else {
-        if (sector->res_bonus > 0) {
-            Planet *home = incoming->owner->home_planet;
-            home->res_total += sector->res_bonus;
-            if (galaxy->players->data[0] == incoming->owner)
-                notify_sector_explored(sector, home);
-            sector->res_bonus = 0;
-        }
+    } else if (sector->res_bonus > 0) {
+        Planet *home = owner->home_planet;
+        home->res_total += sector->res_bonus;
+
+        if (get_player_index(owner, galaxy) == 0)
+            notify_sector_explored(sector, home);
+
+        sector->res_bonus = 0;
     }
-//}
 }
 
 

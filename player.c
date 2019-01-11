@@ -212,7 +212,7 @@ void player_add_fleet(Player* player, Fleet* fleet)
 void player_remove_fleet(Player* player, Fleet* fleet)
 {
     int index = get_index_in_list(player->fleets, fleet);
-    assert (index >= 0);
+    assert(index >= 0);
     player->fleets->remove_at(player->fleets, (unsigned int) index);
 }
 
@@ -262,7 +262,7 @@ void player_add_planet(Player* player, Planet* planet)
 void player_remove_planet(Player* player, Planet* planet, Galaxy* galaxy)
 {
     int index = get_index_in_list(player->planets, planet);
-    assert (index >= 0);
+    assert(index >= 0);
     player->planets->remove_at(player->planets, (unsigned int) index);
     if (get_player_index(player, galaxy) == 0) // notify human player that a planet has been lost
         notify_planet_lost(planet);

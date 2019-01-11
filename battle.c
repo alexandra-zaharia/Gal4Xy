@@ -8,6 +8,7 @@
 #include "battle.h"
 #include "player.h"
 #include "utils.h"
+#include "io.h" // TODO
 
 
 /*
@@ -105,9 +106,10 @@ battle_incoming:
         i_defeated->destroy(i_defeated);
     }
 
-    // Mark sector as explored if the defeated player is human (for display purposes).
+    // Mark sector as explored if the defeated player is human, and if the sector contains a planet
+    // (for display purposes).
     unsigned int defeated_index = get_player_index(defeated, galaxy);
-    if (defeated_index == 0)
+    if (defeated_index == 0 && sector->has_planet)
         sector->mark_explored(sector, defeated, galaxy);
 }
 

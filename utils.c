@@ -8,6 +8,7 @@
 #include <limits.h>
 #include "utils.h"
 
+
 /*
  * Returns a random (unsigned short) integer between min and max, inclusive.
  */
@@ -15,6 +16,7 @@ unsigned short int random_number(unsigned short int min, unsigned short int max)
 {
     return (unsigned short int)(min + rand() % (max - min + 1));
 }
+
 
 /*
  * Returns the index in the given list equal to item, or -1 in case the item is not in the list.
@@ -29,6 +31,7 @@ int get_index_in_list(LinkedList* list, void* item)
     }
     return -1;
 }
+
 
 /*
  * Returns true if the sector has an incoming fleet belonging to the specified player.
@@ -46,6 +49,7 @@ bool has_incoming_fleet(Sector* sector, Player* player)
 
     return false;
 }
+
 
 /*
  * Returns the index of a given player among all the players. If the player is not found, returns

@@ -6,6 +6,7 @@
 #include "notifications.h"
 #include "player.h"
 
+
 /*
  * Displays a notification header with the specified symbol.
  */

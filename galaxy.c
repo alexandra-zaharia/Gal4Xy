@@ -140,6 +140,9 @@ free_planets:
 }
 
 
+/*
+ * Builds ships for every player, on colonies having enough resources.
+ */
 void _build_ships(Galaxy* galaxy)
 {
     for (unsigned  int i = 0; i < galaxy->players->size; i++) {
@@ -147,6 +150,7 @@ void _build_ships(Galaxy* galaxy)
         player->build_ships(player, galaxy);
     }
 }
+
 
 /*
  * Updates the galaxy by advancing one turn: planet resources are gathered for planets owned by
@@ -188,6 +192,7 @@ void galaxy_check_players(Galaxy* galaxy)
             galaxy->remove_player(galaxy, player);
     }
 }
+
 
 /*
  * Eliminates the given player from the game. Marks the game as being over if there is only one

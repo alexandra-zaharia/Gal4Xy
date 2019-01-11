@@ -26,6 +26,7 @@ void player_free(Player* player)
     free(player);
 }
 
+
 /*
  * Determines whether the specified color is a valid color for a player. YELLOW is reserved for '?'
  * in cheat mode, and (BOLD)WHITE and (BOLD)BLACK are reserved for console display.
@@ -49,6 +50,7 @@ void player_update_resources(Player* player)
         planet->res_total += planet->res_per_turn;
     }
 }
+
 
 /*
  * Returns the player's incoming fleet in the specified sector, or NULL in case the player has no
@@ -167,7 +169,7 @@ void player_move_fleet(
 
 
 /*
- * Returns the index in the player's list of fleets at which to insert a new given fleet, such that
+ * Returns the index in the player's list of fleets where a new fleet is to be inserted, such that
  * the player's fleets are sorted by ascending sector coordinates. Returns -1 if the new fleet
  * needs to be inserted at the end of the player's list of fleets.
  */
@@ -216,7 +218,7 @@ void player_remove_fleet(Player* player, Fleet* fleet)
 
 
 /*
- * Returns the index in the player's list of planets at which to insert a new given planet, such
+ * Returns the index in the player's list of planets where a new planet is to be inserted, such
  * that the player's planets are sorted by ascending sector coordinates. Returns -1 if the new
  * planet needs to be inserted at the end of the player's list of planets.
  */

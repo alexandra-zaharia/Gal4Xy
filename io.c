@@ -12,6 +12,7 @@
 #include "io.h"
 #include "utils.h"
 
+
 /*
  * Reads at most n characters (newline included) into str. If present, the newline is removed.
  * Returns the characters read (newline excluded). Taken from "C Primer Plus" by Stephen Prata,
@@ -49,6 +50,9 @@ char s_getc()
 }
 
 
+/*
+ * Prompts the human player to issue one command resulting in moving a player's fleet.
+ */
 void prompt_move_ships(Player* player, Galaxy* galaxy)
 {
     int sx, sy, tx, ty, n;
@@ -101,6 +105,9 @@ void prompt_move_ships(Player* player, Galaxy* galaxy)
 }
 
 
+/*
+ * Displays the specified player's fleets.
+ */
 void show_fleets(Player *player)
 {
     if (!player->fleets->size) {
@@ -118,6 +125,9 @@ void show_fleets(Player *player)
 }
 
 
+/*
+ * Displays the specified player's planets.
+ */
 void show_planets(Player *player)
 {
     printf("You have %d planet%s:\n", player->planets->size, player->planets->size > 1 ? "s" : "");
@@ -133,6 +143,10 @@ void show_planets(Player *player)
 void cheat(Galaxy*);
 
 
+/*
+ * Prompts the human player to take a series of actions resulting in either ending the game or
+ * advancing a turn.
+ */
 void prompt(Player* player, Galaxy* galaxy)
 {
     char option;
@@ -181,6 +195,11 @@ void prompt(Player* player, Galaxy* galaxy)
 }
 
 
+/*
+ * Displays a greeting informing the human player of the location of their home planet during the
+ * first turn. Alternatively, this information, as well as the location of home planets for the
+ * other players may also be displayed irrespective of the turn if `cheat' is set to true.
+ */
 void display_greeting(Galaxy* galaxy, bool cheat)
 {
     if (galaxy->turn == 1 || cheat) {
@@ -207,12 +226,18 @@ void display_greeting(Galaxy* galaxy, bool cheat)
 }
 
 
+/*
+ * Displays the current turn.
+ */
 void log_turn(Galaxy* galaxy)
 {
     printf("Turn #%u\n\n", galaxy->turn);
 }
 
 
+/*
+ * Helper function to display row indexes for the galaxy.
+ */
 void display_indexes(Galaxy* galaxy, bool cheat)
 {
     for (unsigned short int i = 0; i < SIZE; i++) {
@@ -227,6 +252,9 @@ void display_indexes(Galaxy* galaxy, bool cheat)
 }
 
 
+/*
+ * Helper function to display row separators for the galaxy.
+ */
 void display_separator(Galaxy* galaxy, bool cheat)
 {
     for (unsigned short int j = 0; j < SIZE; j++) {
@@ -245,6 +273,72 @@ void display_separator(Galaxy* galaxy, bool cheat)
 }
 
 
+/*
+ * Displays the sectors of the galaxy for the human player (assumed to be the first one in the
+ * galaxy->players vector). Unexplored sectors are represented by `?' symbols. Colonies are
+ * indicated by player symbols/colors. A colony belonging to an enemy may be indicated if the human
+ * player attempted to explore/conquer it, but was defeated. Player's fleets are indicated by `.'
+ * symbols, and incoming fleets belonging to the player are represented by `!' symbols. The incoming
+ * fleets arrive at their destination the following turn.
+ */
+void display_sectors(Galaxy* galaxy)
+{
+    for (unsigned short int i = 0; i < SIZE; i++) {
+        for (unsigned short int j = 0; j < SIZE; j++) {
+            Sector* sector = galaxy->sectors[i][j];
+            Player* human = galaxy->players->data[0];
+            char* color_suffix = RESET;
+
+            if (j == 0)
+                printf(" %hu |", i);
+
+            char human_fleet = ' ';
+            char* human_fleet_color_prefix = "";
+
+            char player_symbol;
+            char* player_symbol_color_prefix = "";
+
+            char inc_human_fleet = ' ';
+            char* inc_human_fleet_color_prefix = "";
+
+            player_symbol = sector->is_explored(sector, human, galaxy)
+                ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
+                : O_NONE;
+
+            if (sector->fleet && sector->fleet->owner == human) {
+                human_fleet = '.';
+                human_fleet_color_prefix = human->color;
+            }
+
+            if (has_incoming_fleet(sector, human)) {
+                inc_human_fleet = '!';
+                inc_human_fleet_color_prefix = human->color;
+            }
+
+            if (sector->is_explored(sector, human, galaxy)) {
+                player_symbol_color_prefix = human->color;
+                if (sector->has_planet)
+                    player_symbol_color_prefix = sector->planet->owner->color;
+            }
+
+            printf("%s%c%s%s%c%s%s%c%s|",
+                    human_fleet_color_prefix, human_fleet, color_suffix,
+                    player_symbol_color_prefix, player_symbol, color_suffix,
+                    inc_human_fleet_color_prefix, inc_human_fleet, color_suffix);
+        }
+        printf("\n");
+        display_separator(galaxy, false);
+    }
+}
+
+
+/*
+ * Displays the sectors of the galaxy in cheat mode, meaning that all planets are shown along with
+ * their ownership (if a planet does not belong to any player, it is represented as `?'). In
+ * addition, a `.' in a sector represents a fleet present in that sector, and its color indicates
+ * the fleet ownership. Incoming fleets are represented as `!' symbols, their colors indicating the
+ * owner of the incoming fleet.
+ */
 void display_sectors_cheat(Galaxy* galaxy)
 {
     for (unsigned short int i = 0; i < SIZE; i++) {
@@ -308,57 +402,9 @@ void display_sectors_cheat(Galaxy* galaxy)
 }
 
 
-void display_sectors(Galaxy* galaxy)
-{
-    for (unsigned short int i = 0; i < SIZE; i++) {
-        for (unsigned short int j = 0; j < SIZE; j++) {
-            Sector* sector = galaxy->sectors[i][j];
-            Player* human = galaxy->players->data[0];
-            char* color_suffix = RESET;
-
-            if (j == 0)
-                printf(" %hu |", i);
-
-            char human_fleet = ' ';
-            char* human_fleet_color_prefix = "";
-
-            char player_symbol;
-            char* player_symbol_color_prefix = "";
-
-            char inc_human_fleet = ' ';
-            char* inc_human_fleet_color_prefix = "";
-
-            player_symbol = sector->is_explored(sector, human, galaxy)
-                ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
-                : O_NONE;
-
-            if (sector->fleet && sector->fleet->owner == human) {
-                human_fleet = '.';
-                human_fleet_color_prefix = human->color;
-            }
-
-            if (has_incoming_fleet(sector, human)) {
-                inc_human_fleet = '!';
-                inc_human_fleet_color_prefix = human->color;
-            }
-
-            if (sector->is_explored(sector, human, galaxy)) {
-                player_symbol_color_prefix = human->color;
-                if (sector->has_planet)
-                    player_symbol_color_prefix = sector->planet->owner->color;
-            }
-
-            printf("%s%c%s%s%c%s%s%c%s|",
-                    human_fleet_color_prefix, human_fleet, color_suffix,
-                    player_symbol_color_prefix, player_symbol, color_suffix,
-                    inc_human_fleet_color_prefix, inc_human_fleet, color_suffix);
-        }
-        printf("\n");
-        display_separator(galaxy, false);
-    }
-}
-
-
+/*
+ * Displays the galaxy for the human player.
+ */
 void galaxy_display(Galaxy* galaxy)
 {
     display_greeting(galaxy, false);
@@ -369,6 +415,9 @@ void galaxy_display(Galaxy* galaxy)
 }
 
 
+/*
+ * Displays the galaxy for the human player in cheat mode.
+ */
 void cheat(Galaxy *galaxy)
 {
     display_greeting(galaxy, true);
@@ -378,6 +427,10 @@ void cheat(Galaxy *galaxy)
     display_sectors_cheat(galaxy);
 }
 
+
+/*
+ * Informs the human player that one of their fleets will be moved next turn.
+ */
 void log_move_fleet(unsigned short int sx, unsigned short int sy,
                     unsigned short int tx, unsigned short int ty,
                     unsigned int power)

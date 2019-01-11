@@ -84,6 +84,10 @@ void plan_fleet_deployment(
 }
 
 
+/*
+ * Simple AI strategy in which the given player prioritizes exploration. No attempt is yet made to
+ * recapture colonies that have been conquered by other players.
+ */
 void ai_strategy(Player* player, Galaxy* galaxy) {
     Vector* unexplored = find_unexplored_sectors(player, galaxy);
     float explored_ratio = roundf((float) (SIZE*SIZE - unexplored->size) / (SIZE*SIZE) * 100) / 100;

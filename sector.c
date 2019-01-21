@@ -83,17 +83,9 @@ bool conflict(Sector* sector)
 void sector_update(Sector* sector, Galaxy* galaxy)
 {
     if (conflict(sector)) {
-        Vector* players = players_in_conflict(sector);
-        printf("Conflict in sector (%hu, %hu) between %u players\n", sector->x, sector->y,
-                players->size);
-        players->free(players);
-        if (sector->fleet)
-            printf("\tFleet (%c): %u power\n", sector->fleet->owner->symbol, sector->fleet->power);
-        for (unsigned int i = 0; i < sector->incoming->size; i++) {
-            Fleet* incoming = sector->incoming->data[i];
-            printf("\tIncoming (%c): %u power\n", incoming->owner->symbol, incoming->power);
-        }
-        battle(sector, galaxy);
+        notify_battle_header(sector, galaxy);
+        Player* winner = battle(sector, galaxy);
+        notify_battle_summary(winner);
     }
 
     if (sector->incoming->size == 0) return;

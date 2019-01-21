@@ -8,6 +8,7 @@
 #include "galaxy.h"
 
 Vector* players_in_conflict(Sector*);
-void battle(Sector*, Galaxy*);
+unsigned int total_firepower(Player*, Sector*);
+Player* battle(Sector*, Galaxy*);
 
 #endif //GAL4XY_BATTLE_H

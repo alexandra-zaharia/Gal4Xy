@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "notifications.h"
 #include "player.h"
+#include "battle.h"
 
 
 /*
@@ -62,6 +63,41 @@ void notify_sector_explored(Sector* sector, Planet* home)
             sector->x, sector->y, sector->res_bonus);
     printf("$$$ Bonus resources have been added to your home planet in sector (%hu, %hu).\n$$$\n",
             home->x, home->y);
+    notification_header('#');
+}
+
+
+/*
+ * Displays information on a battle taking place in the given sector.
+ */
+void notify_battle_header(Sector* sector, Galaxy* galaxy)
+{
+    Vector* players = players_in_conflict(sector);
+
+    printf("!!!\n!!! Battle in sector (%hu, %hu) between %u players:\n",
+            sector->x, sector->y, players->size);
+    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        Player* player = galaxy->players->data[i];
+        if (players->contains(players, player))
+            printf("!!!\tPlayer %s%c%s: %u total firepower\n",
+                    player->color, player->symbol, RESET, total_firepower(player, sector));
+    }
+
+    players->free(players);
+}
+
+
+/*
+ * Displays the outcome of a battle by specifying its winner.
+ */
+void notify_battle_summary(Player* winner)
+{
+    if (!winner) {
+        printf("!!!\tIt's a tie!\n");
+    } else {
+        printf("!!!\tPlayer %s%c%s wins!\n", winner->color, winner->symbol, RESET);
+    }
+    printf("!!!\n");
     notification_header('#');
 }
 

@@ -16,6 +16,9 @@ void notify_planet_lost(Planet*);
 
 void notify_sector_explored(Sector*, Planet*);
 
+void notify_battle_header(Sector*, Galaxy* galaxy);
+void notify_battle_summary(Player*);
+
 void notify_player_eliminated(Player*);
 void notify_game_over(Galaxy*);
 

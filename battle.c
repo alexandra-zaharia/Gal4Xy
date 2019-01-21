@@ -135,48 +135,60 @@ void battle_at_tie(Sector* sector) {
 
 
 /*
- * Handles a battle between two players in the given sector.
+ * Handles a battle between two players in the given sector. Returns the winner or NULL if the
+ * players battle to tie.
  */
-void battle_between_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
+Player* battle_between_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {
     assert(players->size == 2);
 
     Player* player1 = players->data[0];
     Player* player2 = players->data[1];
+    Player* winner = NULL;
 
     unsigned int power1 = total_firepower(player1, sector);
     unsigned int power2 = total_firepower(player2, sector);
 
     if (power1 < power2) {
         player_wins_battle(player2, player1, sector, galaxy);
+        winner = player2;
     } else if (power1 > power2) {
         player_wins_battle(player1, player2, sector, galaxy);
+        winner = player1;
     } else { // tie
-        printf("It's a tie\n");
         battle_at_tie(sector);
     }
+
+    return winner;
 }
 
 
 /*
- * Handles a battle between more than two players in the given sector.
+ * Handles a battle between more than two players in the given sector. Returns the winner or NULL if
+ * the players battle to tie.
  */
-void battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
+Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {
+    Player* winner = NULL;
 
+    return winner;
 }
 
 
 /*
- * Handles a battle in the given sector.
+ * Handles a battle in the given sector. Returns the winner or NULL if the players battle to tie.
  */
-void battle(Sector* sector, Galaxy* galaxy)
+Player* battle(Sector* sector, Galaxy* galaxy)
 {
     Vector* players = players_in_conflict(sector);
+    Player* winner = NULL;
+
     if (players->size == 2) {
-        battle_between_two_players(players, sector, galaxy);
+        winner = battle_between_two_players(players, sector, galaxy);
     } else {
-        battle_between_more_than_two_players(players, sector, galaxy);
+        winner = battle_between_more_than_two_players(players, sector, galaxy);
     }
+
     players->free(players);
+    return winner;
 }

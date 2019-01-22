@@ -157,6 +157,8 @@ Player* battle_between_two_players(Vector* players, Sector* sector, Galaxy* gala
         winner = player1;
     } else { // tie
         battle_at_tie(sector);
+        sector->mark_at_tie(sector, player1, galaxy);
+        sector->mark_at_tie(sector, player2, galaxy);
     }
 
     return winner;

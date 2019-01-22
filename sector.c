@@ -23,6 +23,9 @@ void sector_free(Sector* sector)
     if (sector->explored)
         sector->explored->free(sector->explored);
 
+    if (sector->tie)
+        sector->tie->free(sector->tie);
+
     if (sector->has_planet && sector->planet)
         sector->planet->destroy(sector->planet);
 
@@ -58,6 +61,26 @@ void sector_mark_explored(Sector* sector, Player* player, Galaxy* galaxy)
 {
     unsigned int player_index = get_player_index(player, galaxy);
     sector->explored->data[player_index] = (void*) true;
+}
+
+
+/*
+ * Determines whether a battle finished at tie for the given player in the specified sector.
+ */
+bool sector_is_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
+{
+    unsigned int player_index = get_player_index(player, galaxy);
+    return (bool) sector->tie->data[player_index];
+}
+
+
+/*
+ * Sets the tie flag for the given sector and the given player.
+ */
+void sector_mark_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
+{
+    unsigned int player_index = get_player_index(player, galaxy);
+    sector->tie->data[player_index] = (void*) true;
 }
 
 
@@ -150,12 +173,15 @@ Sector* sector_create(unsigned short int x, unsigned short int y)
     sector->x = x;
     sector->y = y;
     sector->explored = NULL;
+    sector->tie = NULL;
     sector->has_planet = false;
     sector->fleet = NULL;
     sector->incoming = NULL;
 
     sector->is_explored = sector_is_explored;
     sector->mark_explored = sector_mark_explored;
+    sector->is_at_tie = sector_is_at_tie;
+    sector->mark_at_tie = sector_mark_at_tie;
     sector->update = sector_update;
     sector->destroy = sector_free;
 

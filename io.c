@@ -277,9 +277,10 @@ void display_separator(Galaxy* galaxy, bool cheat)
  * Displays the sectors of the galaxy for the human player (assumed to be the first one in the
  * galaxy->players vector). Unexplored sectors are represented by `?' symbols. Colonies are
  * indicated by player symbols/colors. A colony belonging to an enemy may be indicated if the human
- * player attempted to explore/conquer it, but was defeated. Player's fleets are indicated by `.'
- * symbols, and incoming fleets belonging to the player are represented by `!' symbols. The incoming
- * fleets arrive at their destination the following turn.
+ * player attempted to explore/conquer it, but was defeated. If a battle finished at tie in a given
+ * unexplored sector, the sector is represented using the 'x' symbol. Player's fleets are indicated
+ * by `.' symbols, and incoming fleets belonging to the player are represented by `!' symbols. The
+ * incoming fleets arrive at their destination the following turn.
  */
 void display_sectors(Galaxy* galaxy)
 {
@@ -304,6 +305,11 @@ void display_sectors(Galaxy* galaxy)
             player_symbol = sector->is_explored(sector, human, galaxy)
                 ? sector->has_planet ? sector->planet->owner->symbol : (char) ' '
                 : O_NONE;
+            if (!sector->is_explored(sector, human, galaxy)
+                    && sector->is_at_tie(sector, human, galaxy)) {
+                player_symbol = 'x';
+                player_symbol_color_prefix = YELLOW;
+            }
 
             if (sector->fleet && sector->fleet->owner == human) {
                 human_fleet = '.';

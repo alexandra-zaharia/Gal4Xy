@@ -84,7 +84,6 @@ bool home_planets_initialize(Galaxy* galaxy, Vector* planets)
  */
 bool galaxy_initialize(Galaxy* galaxy, Vector* players)
 {
-
     galaxy->players = players;
     Vector* planets = vector_create();
     if (!planets) {
@@ -98,6 +97,7 @@ bool galaxy_initialize(Galaxy* galaxy, Vector* players)
     for (unsigned short int i = 0; i < SIZE; i++)
         for (unsigned short int j = 0; j < SIZE; j++) {
             Sector* sector = galaxy->sectors[i][j];
+
             sector->explored = vector_create();
             if (!sector->explored) {
                 MALLOC_ERROR(__func__, "cannot create explored vector");
@@ -105,8 +105,17 @@ bool galaxy_initialize(Galaxy* galaxy, Vector* players)
                 goto free_planets;
             }
 
-            for (unsigned int k = 0; k < players->size; k++)
+            sector->tie = vector_create();
+            if (!sector->tie) {
+                MALLOC_ERROR(__func__, "cannot create tie vector");
+                status = false;
+                goto free_planets;
+            }
+
+            for (unsigned int k = 0; k < players->size; k++) {
                 sector->explored->add(sector->explored, false);
+                sector->tie->add(sector->tie, false);
+            }
 
             sector->incoming = vector_create();
             if (!sector->incoming) {

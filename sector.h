@@ -18,6 +18,7 @@ struct Sector {
     unsigned short int y;             // y-coordinate of the sector in the galaxy
 
     Vector* explored;                 // has this sector been explored by the players?
+    Vector* tie;                      // has a battle finished at tie in this sector?
 
     bool has_planet;                  // does this sector contain a planet?
     union {
@@ -30,6 +31,10 @@ struct Sector {
 
     bool (*is_explored)(Sector*, Player*, Galaxy*);   // is the sector explored by the player?
     void (*mark_explored)(Sector*, Player*, Galaxy*); // marks sector as explored for player
+
+    bool (*is_at_tie)(Sector*, Player*, Galaxy*);     // did a battle finish at tie for the player?
+    void (*mark_at_tie)(Sector*, Player*, Galaxy*);  // sets the tie flag for the given player
+
     void (*update)(Sector*, Galaxy*); // updates the sector
     void (*destroy)(Sector*);         // frees the sector
 };

@@ -85,40 +85,58 @@ void plan_fleet_deployment(
 
 
 /*
+ * The specified player explores uncharted territory by sending out fleets throughout the galaxy.
+ */
+void explore_uncharted_territory(Player* player, Vector* unexplored, Galaxy* galaxy)
+{
+    LinkedList *deployment_planner = linked_list_create();
+    float explored_ratio = roundf((float) (SIZE*SIZE - unexplored->size) / (SIZE*SIZE) * 100) / 100;
+
+    for (DNode *node = player->fleets->head; node; node = node->next) {
+        Fleet *fleet = node->data;
+        if (explored_ratio < 0.25) {
+            plan_fleet_deployment(fleet, unexplored, 0, galaxy, deployment_planner);
+        } else if (explored_ratio < 0.50) {
+            plan_fleet_deployment(fleet, unexplored, 2, galaxy, deployment_planner);
+        } else if (explored_ratio < 0.75) {
+            plan_fleet_deployment(fleet, unexplored, 4, galaxy, deployment_planner);
+        } else {
+            plan_fleet_deployment(fleet, unexplored, 6, galaxy, deployment_planner);
+        }
+    }
+
+    deploy_fleet(player, galaxy, deployment_planner);
+
+    for (DNode *node = deployment_planner->head; node; node = node->next) {
+        FleetDeployment *fd = node->data;
+        free(fd);
+    }
+
+    deployment_planner->free(deployment_planner);
+}
+
+
+/*
+ * The specified player reclaims colonies that have been lost to other players.
+ */
+void reclaim_lost_colonies(Player* player, Galaxy* galaxy)
+{
+
+}
+
+
+/*
  * Simple AI strategy in which the given player prioritizes exploration. No attempt is yet made to
  * recapture colonies that have been conquered by other players.
  */
 void ai_strategy(Player* player, Galaxy* galaxy) {
     Vector* unexplored = find_unexplored_sectors(player, galaxy);
-    float explored_ratio = roundf((float) (SIZE*SIZE - unexplored->size) / (SIZE*SIZE) * 100) / 100;
 
-    printf("%s for AI player '%c' with an exploration ratio of %.2f\n",
-           __func__, player->symbol, explored_ratio);
-
-    if (unexplored->size > 0) { // explore uncharted territory
-        LinkedList *deployment_planner = linked_list_create();
-
-        for (DNode *node = player->fleets->head; node; node = node->next) {
-            Fleet *fleet = node->data;
-            if (explored_ratio < 0.25) {
-                plan_fleet_deployment(fleet, unexplored, 0, galaxy, deployment_planner);
-            } else if (explored_ratio < 0.50) {
-                plan_fleet_deployment(fleet, unexplored, 2, galaxy, deployment_planner);
-            } else if (explored_ratio < 0.75) {
-                plan_fleet_deployment(fleet, unexplored, 4, galaxy, deployment_planner);
-            } else {
-                plan_fleet_deployment(fleet, unexplored, 6, galaxy, deployment_planner);
-            }
-        }
-
-        deploy_fleet(player, galaxy, deployment_planner);
-
-        for (DNode *node = deployment_planner->head; node; node = node->next) {
-            FleetDeployment *fd = node->data;
-            free(fd);
-        }
-        deployment_planner->free(deployment_planner);
-    } // else regain lost colonies
+    if (unexplored->size > 0) {
+        explore_uncharted_territory(player, unexplored, galaxy);
+    } else {
+        reclaim_lost_colonies(player, galaxy);
+    }
 
     unexplored->free(unexplored);
 }

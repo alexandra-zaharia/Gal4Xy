@@ -33,12 +33,6 @@ Vector* find_unexplored_sectors(Player* player, Galaxy* galaxy)
 }
 
 
-typedef struct {
-    Fleet* fleet;
-    Sector* target;
-} FleetDeployment;
-
-
 /*
  * Deploys the player's fleets according to the fleet deployment `planner'.
  */
@@ -68,17 +62,14 @@ void plan_fleet_deployment(
         if (fleet->power <= keep && galaxy->sectors[fleet->x][fleet->y]->has_planet)
             break;
         unsigned short rnd = random_number(0, (unsigned short) (unexplored->size - 1));
-        Sector* target = unexplored->data[rnd];
-        FleetDeployment* fd = malloc(sizeof(FleetDeployment));
+        Sector* target = (Sector*) unexplored->data[rnd];
+        FleetDeployment* fd = fleet_deployment_create(fleet, target);
         if (!fd) {
-            MALLOC_ERROR(__func__, "cannot create fleet deployment variable");
             planner->free(planner);
             unexplored->free(unexplored);
             galaxy->destroy(galaxy);
             exit(EXIT_FAILURE);
         }
-        fd->fleet = fleet;
-        fd->target = target;
         planner->insert_end(planner, fd);
     }
 }

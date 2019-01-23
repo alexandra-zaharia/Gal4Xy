@@ -20,4 +20,12 @@ struct Fleet {
 
 Fleet* fleet_create(unsigned short int, unsigned short int, Player*, unsigned int);
 
+typedef struct Sector Sector;
+typedef struct {
+    Fleet* fleet;             // fleet to be deployed
+    Sector* target;           // sector where the fleet will be deployed to
+} FleetDeployment;
+
+FleetDeployment* fleet_deployment_create(Fleet*, Sector*);
+
 #endif //GAL4XY_FLEET_H

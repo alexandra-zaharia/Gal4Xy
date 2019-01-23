@@ -55,3 +55,22 @@ Fleet* fleet_create(unsigned short int x, unsigned short int y, Player* owner, u
 
     return fleet;
 }
+
+
+/*
+ * Creates and returns a FleetDeployment structure containing the specified fleet and sector.
+ * Returns NULL in case of failure.
+ */
+FleetDeployment* fleet_deployment_create(Fleet* fleet, Sector* target)
+{
+    FleetDeployment* fd = malloc(sizeof(FleetDeployment));
+    if (!fd) {
+        MALLOC_ERROR(__func__, "cannot create fleet deployment variable");
+        return NULL;
+    }
+
+    fd->fleet = fleet;
+    fd->target = target;
+
+    return fd;
+}

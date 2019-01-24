@@ -47,13 +47,14 @@ void deploy_fleet(Player* player, Galaxy* galaxy, LinkedList* planner)
 
 
 /*
- * Plans the deployment of the player's `fleet' to a randomly chosen unexplored sector by adding
- * FleetDeployment variables to the `planner', if and only if it is possible to leave `keep' ships
- * in the original fleet, in case the original fleet is in a sector where the player owns a planet.
+ * Plans the deployment of the player's `fleet' to a randomly chosen sector among the target sectors
+ * by adding FleetDeployment variables to the `planner', if and only if it is possible to leave
+ * `keep' ships in the original fleet, in case the original fleet is in a sector where the player
+ * owns a planet.
  */
 void plan_fleet_deployment(
         Fleet* fleet,
-        Vector* unexplored,
+        Vector* targets,
         unsigned int keep,
         Galaxy* galaxy,
         LinkedList* planner)
@@ -61,12 +62,12 @@ void plan_fleet_deployment(
     for (unsigned  int i = fleet->power; i > 0; i--) {
         if (fleet->power <= keep && galaxy->sectors[fleet->x][fleet->y]->has_planet)
             break;
-        unsigned short rnd = random_number(0, (unsigned short) (unexplored->size - 1));
-        Sector* target = (Sector*) unexplored->data[rnd];
+        unsigned short rnd = random_number(0, (unsigned short) (targets->size - 1));
+        Sector* target = (Sector*) targets->data[rnd];
         FleetDeployment* fd = fleet_deployment_create(fleet, target);
         if (!fd) {
             planner->free(planner);
-            unexplored->free(unexplored);
+            targets->free(targets);
             galaxy->destroy(galaxy);
             exit(EXIT_FAILURE);
         }

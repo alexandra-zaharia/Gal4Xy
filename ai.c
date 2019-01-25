@@ -77,11 +77,34 @@ void plan_fleet_deployment(
 
 
 /*
+ * Deploys all player fleets according to the fleet deployment planner. Frees the planner when
+ * finished.
+ */
+void deploy_fleets_as_planned(Player* player, Galaxy* galaxy, LinkedList* planner)
+{
+    deploy_fleet(player, galaxy, planner);
+
+    for (DNode *node = planner->head; node; node = node->next) {
+        FleetDeployment *fd = node->data;
+        free(fd);
+    }
+
+    planner->free(planner);
+}
+
+
+/*
  * The specified player explores uncharted territory by sending out fleets throughout the galaxy.
  */
 void explore_uncharted_territory(Player* player, Vector* unexplored, Galaxy* galaxy)
 {
-    LinkedList *deployment_planner = linked_list_create();
+    LinkedList* deployment_planner = linked_list_create();
+    if (!deployment_planner) {
+        MALLOC_ERROR(__func__, "cannot create deployment planner linked list");
+        unexplored->free(unexplored);
+        galaxy->destroy(galaxy);
+        exit(EXIT_FAILURE);
+    }
     float explored_ratio = roundf((float) (SIZE*SIZE - unexplored->size) / (SIZE*SIZE) * 100) / 100;
 
     for (DNode *node = player->fleets->head; node; node = node->next) {
@@ -97,14 +120,31 @@ void explore_uncharted_territory(Player* player, Vector* unexplored, Galaxy* gal
         }
     }
 
-    deploy_fleet(player, galaxy, deployment_planner);
+    deploy_fleets_as_planned(player, galaxy, deployment_planner);
+}
 
-    for (DNode *node = deployment_planner->head; node; node = node->next) {
-        FleetDeployment *fd = node->data;
-        free(fd);
+
+/*
+ * Returns a vector of Sector* containing all the sectors in the galaxy that contain planets that
+ * were previously owned by the player but that were subsequently lost to other players.
+ */
+Vector* find_lost_colonies(Player* player, Galaxy* galaxy) {
+    Vector* lost_colonies = vector_create();
+    if (!lost_colonies) {
+        MALLOC_ERROR(__func__, "cannot create lost planets vector");
+        return NULL;
     }
 
-    deployment_planner->free(deployment_planner);
+    for (int i = 0; i < SIZE; i++)
+        for (int j = 0; j < SIZE; j++) {
+            Sector* sector = galaxy->sectors[i][j];
+            if (sector->is_explored(sector, player, galaxy)
+                    && sector->has_planet && sector->planet->owner != player) {
+                lost_colonies->add(lost_colonies, sector);
+            }
+        }
+
+    return lost_colonies;
 }
 
 
@@ -113,7 +153,27 @@ void explore_uncharted_territory(Player* player, Vector* unexplored, Galaxy* gal
  */
 void reclaim_lost_colonies(Player* player, Galaxy* galaxy)
 {
+    LinkedList* deployment_planner = linked_list_create();
+    if (!deployment_planner) {
+        MALLOC_ERROR(__func__, "cannot create deployment planner linked list");
+        galaxy->destroy(galaxy);
+        exit(EXIT_FAILURE);
+    }
 
+    Vector* lost_colonies = find_lost_colonies(player, galaxy);
+    if (!lost_colonies) {
+        deployment_planner->free(deployment_planner);
+        galaxy->destroy(galaxy);
+        exit(EXIT_FAILURE);
+    }
+
+    for (DNode *node = player->fleets->head; node; node = node->next) {
+        Fleet *fleet = node->data;
+        plan_fleet_deployment(fleet, lost_colonies, 6, galaxy, deployment_planner);
+    }
+
+    deploy_fleets_as_planned(player, galaxy, deployment_planner);
+    lost_colonies->free(lost_colonies);
 }
 
 

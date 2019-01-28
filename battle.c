@@ -102,7 +102,7 @@ battle_incoming:
         assert(i_defeated->power == 0);
         int index_in_incoming = get_index_in_incoming(i_defeated, sector);
         assert (index_in_incoming >= 0);
-        sector->incoming->remove(sector->incoming, (unsigned int) index_in_incoming);
+        sector->incoming->remove(sector->incoming, index_in_incoming);
         i_defeated->destroy(i_defeated);
     }
 
@@ -129,7 +129,7 @@ void battle_at_tie(Sector* sector) {
     for (unsigned int i = 0; i < number_of_incoming_fleets; i++) {
         Fleet* incoming = sector->incoming->data[i];
         incoming->destroy(incoming);
-        sector->incoming->remove(sector->incoming, number_of_incoming_fleets - i - 1);
+        sector->incoming->remove(sector->incoming, (int) (number_of_incoming_fleets - i - 1));
     }
 }
 

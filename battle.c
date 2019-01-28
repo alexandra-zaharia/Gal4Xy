@@ -172,6 +172,7 @@ Player* battle_between_two_players(Vector* players, Sector* sector, Galaxy* gala
 Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {
     Player* winner = NULL;
+    shuffle(players->data, players->size); // random order for attack
 
     return winner;
 }

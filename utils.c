@@ -19,6 +19,20 @@ unsigned short int random_number(unsigned short int min, unsigned short int max)
 
 
 /*
+ * Randomly shuffles the `data' array of size `size' in place. Also known as the Knuth shuffle.
+ */
+void shuffle(void** data, unsigned int size)
+{
+    for (unsigned int i = size-1; i > 0; i--) {
+        unsigned int j = random_number(0, (unsigned short int) i);
+        void* tmp = data[i];
+        data[i] = data[j];
+        data[j] = tmp;
+    }
+}
+
+
+/*
  * Returns the index in the given list equal to item, or -1 in case the item is not in the list.
  */
 int get_index_in_list(LinkedList* list, void* item)

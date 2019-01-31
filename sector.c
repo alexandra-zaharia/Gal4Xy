@@ -145,7 +145,7 @@ void sector_update(Sector* sector, Galaxy* galaxy)
                 sector->planet->res_total = 0;
             }
         }
-    } else if (sector->res_bonus > 0) {
+    } else if (sector->res_bonus > 0 && !owner->is_retired) {
         Planet *home = owner->home_planet;
         home->res_total += sector->res_bonus;
 

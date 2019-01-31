@@ -27,8 +27,11 @@ struct Galaxy {
     bool (*initialize)(Galaxy*, Vector*);    // initializes the galaxy for the given players
     void (*display)(Galaxy*);                // display the galaxy
     void (*update)(Galaxy*);                 // updates the galaxy when advancing one turn
+
     void (*check_players)(Galaxy*);          // does any player need to be eliminated?
-    void (*remove_player)(Galaxy*, Player*); // eliminates a player from the game
+    int (*active_players)(Galaxy*);          // returns the number of players still active
+    void (*retire_player)(Galaxy*, Player*); // eliminates a player from the game
+
     void (*game_over)(Galaxy*);              // displays the game over screen
     void (*destroy)(Galaxy*);                // frees the galaxy
 };

@@ -191,15 +191,32 @@ void galaxy_update(Galaxy* galaxy)
 
 /*
  * Checks whether any player has no more planets left, in which case the player(s) in question are
- * eliminated.
+ * retired.
  */
 void galaxy_check_players(Galaxy* galaxy)
 {
     for (unsigned int i = 0; i < galaxy->players->size; i++) {
         Player* player = galaxy->players->data[i];
-        if (player->planets->size == 0)
-            galaxy->remove_player(galaxy, player);
+        if (!player->is_retired && player->planets->size == 0)
+            galaxy->retire_player(galaxy, player);
     }
+}
+
+
+/*
+ * Returns the number of players that have not yet been eliminated.
+ */
+int galaxy_active_players(Galaxy* galaxy)
+{
+    int active_players = 0;
+
+    for (unsigned int i = 0; i < galaxy->players->size; i++) {
+        Player* player = galaxy->players->data[i];
+        if (!player->is_retired)
+            ++active_players;
+    }
+
+    return active_players;
 }
 
 
@@ -207,14 +224,13 @@ void galaxy_check_players(Galaxy* galaxy)
  * Eliminates the given player from the game. Marks the game as being over if there is only one
  * remaining player.
  */
-void galaxy_remove_player(Galaxy* galaxy, Player* player)
+void galaxy_retire_player(Galaxy* galaxy, Player* player)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
     notify_player_eliminated(player);
-    player->destroy(player);
-    galaxy->players->remove(galaxy->players, player_index);
+    player->is_retired = true;
+    player->retirement_turn = galaxy->turn;
 
-    if (galaxy->players->size == 1)
+    if (galaxy->active_players(galaxy) == 1)
         galaxy->game_over(galaxy);
 }
 
@@ -282,8 +298,11 @@ Galaxy* galaxy_create()
     galaxy->initialize = galaxy_initialize;
     galaxy->display = galaxy_display;
     galaxy->update = galaxy_update;
+
     galaxy->check_players = galaxy_check_players;
-    galaxy->remove_player = galaxy_remove_player;
+    galaxy->active_players = galaxy_active_players;
+    galaxy->retire_player = galaxy_retire_player;
+
     galaxy->game_over = galaxy_game_over;
     galaxy->destroy = galaxy_free;
 

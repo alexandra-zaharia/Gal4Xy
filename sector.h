@@ -33,7 +33,7 @@ struct Sector {
     void (*mark_explored)(Sector*, Player*, Galaxy*); // marks sector as explored for player
 
     bool (*is_at_tie)(Sector*, Player*, Galaxy*);     // did a battle finish at tie for the player?
-    void (*mark_at_tie)(Sector*, Player*, Galaxy*);  // sets the tie flag for the given player
+    void (*mark_at_tie)(Sector*, Player*, Galaxy*);   // sets the tie flag for the given player
 
     void (*update)(Sector*, Galaxy*); // updates the sector
     void (*destroy)(Sector*);         // frees the sector

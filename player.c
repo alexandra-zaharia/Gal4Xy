@@ -352,6 +352,9 @@ Player* player_create(char symbol, char* color)
     player->symbol = symbol;
     player->color = color;
 
+    player->is_retired = false;
+    player->retirement_turn = 0;
+
     player->home_planet = NULL;
     player->fleets = NULL;
     player->planets = linked_list_create();

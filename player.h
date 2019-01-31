@@ -15,6 +15,9 @@ struct Player {
     char symbol;                             // symbol associated to the player
     char* color;                             // player color for galaxy display
 
+    bool is_retired;                         // has the player been eliminated yet?
+    unsigned int retirement_turn;            // turn when the player was eliminated
+
     Planet* home_planet;                     // player's home planet (if any)
     LinkedList* planets;                     // list of planets owned by the player
     LinkedList* fleets;                      // list of fleets owned by the player

@@ -124,6 +124,12 @@ void notify_game_over(Galaxy* galaxy)
     printf("*** GAME OVER\n***\n");
 
     Player* winner = galaxy->players->data[0];
+    for (unsigned int i = 1; i < galaxy->players->size; i++) {
+        Player* player = galaxy->players->data[i];
+        if (!player->is_retired)
+            winner = player;
+    }
+
     printf("*** Player %s%c%s conquered the galaxy in %u turns!\n***\n",
            winner->color, winner->symbol, BOLDWHITE, galaxy->turn);
 

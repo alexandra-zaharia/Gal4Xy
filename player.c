@@ -152,7 +152,7 @@ void player_move_fleet(
         assert(f_src);
         f_src->power -= power;
         if (f_src->power == 0) {
-            int index = get_index_in_list(player->fleets, f_src);
+            int index = player->fleets->index(player->fleets, f_src);
             assert(index >= 0);
             player->fleets->remove_at(player->fleets, index);
             galaxy->sectors[sx][sy]->fleet->destroy(galaxy->sectors[sx][sy]->fleet);
@@ -211,7 +211,7 @@ void player_add_fleet(Player* player, Fleet* fleet)
  */
 void player_remove_fleet(Player* player, Fleet* fleet)
 {
-    int index = get_index_in_list(player->fleets, fleet);
+    int index = player->fleets->index(player->fleets, fleet);
     assert(index >= 0);
     player->fleets->remove_at(player->fleets, index);
 }
@@ -261,7 +261,7 @@ void player_add_planet(Player* player, Planet* planet)
  */
 void player_remove_planet(Player* player, Planet* planet, Galaxy* galaxy)
 {
-    int index = get_index_in_list(player->planets, planet);
+    int index = player->planets->index(player->planets, planet);
     assert(index >= 0);
     player->planets->remove_at(player->planets, index);
     if (get_player_index(player, galaxy) == 0) // notify human player that a planet has been lost

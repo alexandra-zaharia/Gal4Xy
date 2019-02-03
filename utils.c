@@ -33,21 +33,6 @@ void shuffle(void** data, unsigned int size)
 
 
 /*
- * Returns the index in the given list equal to item, or -1 in case the item is not in the list.
- */
-int get_index_in_list(LinkedList* list, void* item)
-{
-    int index = -1;
-    for (DNode* node = list->head; node; node = node->next) {
-        ++index;
-        if (node->data == item)
-            return index;
-    }
-    return -1;
-}
-
-
-/*
  * Returns true if the sector has an incoming fleet belonging to the specified player.
  */
 bool has_incoming_fleet(Sector* sector, Player* player)

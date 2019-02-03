@@ -8,6 +8,7 @@
 #include "battle.h"
 #include "player.h"
 #include "utils.h"
+#include "circular_linked_list.h"
 #include "io.h" // TODO
 
 
@@ -42,25 +43,6 @@ unsigned int total_firepower(Player* player, Sector* sector)
     if (incoming) power += incoming->power;
 
     return sector->fleet && sector->fleet->owner == player ? power + sector->fleet->power : power;
-}
-
-
-/*
- * Returns the index of the given fleet in the vector of incoming fleets in the specified sector.
- * Returns -1 in case of failure.
- */
-int get_index_in_incoming(Fleet* incoming, Sector* sector)
-{
-    if (!sector->incoming || sector->incoming->size == 0)
-        return -1;
-
-    for (unsigned int i = 0; i < sector->incoming->size; i++) {
-        Fleet* fleet = sector->incoming->data[i];
-        if (incoming == fleet)
-            return (int) i;
-    }
-
-    return -1;
 }
 
 
@@ -100,7 +82,7 @@ battle_incoming:
 
     if (i_defeated) {
         assert(i_defeated->power == 0);
-        int index_in_incoming = get_index_in_incoming(i_defeated, sector);
+        int index_in_incoming = sector->incoming->index(sector->incoming, i_defeated);
         assert (index_in_incoming >= 0);
         sector->incoming->remove(sector->incoming, index_in_incoming);
         i_defeated->destroy(i_defeated);
@@ -166,14 +148,34 @@ Player* battle_between_two_players(Vector* players, Sector* sector, Galaxy* gala
 
 
 /*
+ * Returns a shuffled circular linked list of players. The input Vector* is also shuffled.
+ */
+CircularLinkedList* shuffle_players(Vector* players)
+{
+    CircularLinkedList* shuffled_players = circular_linked_list_create();
+    shuffle(players->data, players->size); // random order for attack
+
+    for (unsigned int i = 0; i < players->size; i++) {
+        Player* player = players->data[i];
+        shuffled_players->insert_end(shuffled_players, player);
+    }
+
+    return shuffled_players;
+}
+
+
+/*
  * Handles a battle between more than two players in the given sector. Returns the winner or NULL if
  * the players battle to tie.
  */
-Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
+Player* battle_between_more_than_two_players(Vector* players_, Sector* sector, Galaxy* galaxy)
 {
     Player* winner = NULL;
-    shuffle(players->data, players->size); // random order for attack
+    CircularLinkedList* players = shuffle_players(players_);
 
+
+
+    players->free(players);
     return winner;
 }
 

@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "battle.h"
 #include "player.h"
+#include "error.h"
 #include "utils.h"
 #include "circular_linked_list.h"
 #include "io.h" // TODO
@@ -147,35 +148,108 @@ Player* battle_between_two_players(Vector* players, Sector* sector, Galaxy* gala
 }
 
 
+typedef struct PlayerPower {
+    Player* player;
+    unsigned int power;
+} PlayerPower;
+
+
 /*
- * Returns a shuffled circular linked list of players. The input Vector* is also shuffled.
+ * Returns a shuffled circular linked list of players. The input Vector* is also shuffled. Returns
+ * NULL in case of failure.
  */
-CircularLinkedList* shuffle_players(Vector* players)
+CircularLinkedList* shuffle_players(Vector* players, Sector* sector)
 {
-    CircularLinkedList* shuffled_players = circular_linked_list_create();
+    CircularLinkedList* shuffled_player_power = circular_linked_list_create();
     shuffle(players->data, players->size); // random order for attack
 
     for (unsigned int i = 0; i < players->size; i++) {
         Player* player = players->data[i];
-        shuffled_players->insert_end(shuffled_players, player);
+        unsigned int power = total_firepower(player, sector);
+        PlayerPower* player_power = malloc(sizeof(PlayerPower));
+        if (!player_power) {
+            MALLOC_ERROR(__func__, "cannot create player power variable");
+            shuffled_player_power->free(shuffled_player_power);
+            return NULL;
+        }
+        player_power->player = player;
+        player_power->power = power;
+        shuffled_player_power->insert_end(shuffled_player_power, player_power);
     }
 
-    return shuffled_players;
+    return shuffled_player_power;
 }
 
 
 /*
- * Handles a battle between more than two players in the given sector. Returns the winner or NULL if
- * the players battle to tie.
+ * Removes a PlayerPower variable from the circular linked list, if it corresponds to a player
+ * having lost a 1-vs-1 battle during a confrontation between more than two players.
  */
-Player* battle_between_more_than_two_players(Vector* players_, Sector* sector, Galaxy* galaxy)
+void _remove_defeated(CircularLinkedList* shuffled_player_power, PlayerPower* player_power)
 {
-    Player* winner = NULL;
-    CircularLinkedList* players = shuffle_players(players_);
+    int index = shuffled_player_power->index(shuffled_player_power, player_power);
+    free(player_power);
+    shuffled_player_power->remove_at(shuffled_player_power, index);
+}
 
 
+/*
+ * Handles a battle between more than two players in the given sector. Returns the winner or NULL in
+ * case the players battle to tie.
+ */
+Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
+{
+    CircularLinkedList* shuffled_player_power = shuffle_players(players, sector);
+    if (!shuffled_player_power) {
+        players->free(players);
+        galaxy->destroy(galaxy);
+        exit(EXIT_FAILURE);
+    }
 
-    players->free(players);
+    DNode* node = shuffled_player_power->head;
+    while (node && shuffled_player_power->size > 1) {
+        PlayerPower* p_curr = node->data;
+        PlayerPower* p_next = node->next->data;
+
+        if (p_curr->power < p_next->power) {
+            player_wins_battle(p_next->player, p_curr->player, sector, galaxy);
+        } else if (p_curr->power > p_next->power) {
+            player_wins_battle(p_curr->player, p_next->player, sector, galaxy);
+        } else {
+            Fleet* i_curr = p_curr->player->find_incoming(p_curr->player, sector);
+            int index = sector->incoming->index(sector->incoming, i_curr);
+            sector->incoming->remove(sector->incoming, index);
+
+            Fleet* i_next = p_curr->player->find_incoming(p_next->player, sector);
+            index = sector->incoming->index(sector->incoming, i_next);
+            sector->incoming->remove(sector->incoming, index);
+        }
+
+        unsigned int power_curr = p_curr->power;
+        p_curr->power -= p_next->power;
+        p_next->power -= power_curr;
+
+        if (p_curr->power <= 0) {
+            node = node->prev;
+            _remove_defeated(shuffled_player_power, p_curr);
+        }
+        if (p_next->power <= 0)
+            _remove_defeated(shuffled_player_power, p_next);
+
+        node = node->next;
+    }
+
+    Player* winner;
+    if (shuffled_player_power->size == 0) {
+        battle_at_tie(sector);
+        for (unsigned int i = 0; i < players->size; i++)
+            sector->mark_at_tie(sector, players->data[i], galaxy);
+        winner = NULL;
+    } else {
+        winner = ((PlayerPower *) shuffled_player_power->head->data)->player;
+    }
+
+    shuffled_player_power->free(shuffled_player_power);
     return winner;
 }
 

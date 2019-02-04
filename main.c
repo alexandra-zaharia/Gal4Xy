@@ -24,6 +24,8 @@ int main()
         galaxy->destroy(galaxy);
         exit(EXIT_FAILURE);
     }
+    Player* ai2= player_create('~', BOLDYELLOW);
+    Player* ai3 = player_create('#', BOLDCYAN);
 
     Vector* players = vector_create();
     if (!players) {
@@ -35,6 +37,8 @@ int main()
     }
     players->add(players, human);
     players->add(players, ai);
+    players->add(players, ai2);
+    players->add(players, ai3);
 
     if (!galaxy->initialize(galaxy, players)) {
         galaxy->destroy(galaxy);
@@ -43,11 +47,19 @@ int main()
 
     human->play = prompt;
     ai->play = ai_strategy;
+    ai2->play = ai_strategy;
+    ai3->play = ai_strategy;
 
     while (true) {
         galaxy->update(galaxy);
         galaxy->display(galaxy);
-        ai->play(ai, galaxy);
+        for (unsigned int i = 1; i < galaxy->players->size; i++) {
+            Player* player = galaxy->players->data[i];
+            player->play(player, galaxy);
+        }
+        /*ai->play(ai, galaxy);
+        ai2->play(ai2, galaxy);
+        ai3->play(ai3, galaxy);*/
         human->play(human, galaxy);
     }
 }

@@ -150,7 +150,7 @@ Player* battle_between_two_players(Vector* players, Sector* sector, Galaxy* gala
 
 typedef struct PlayerPower {
     Player* player;
-    unsigned int power;
+    int power;
 } PlayerPower;
 
 
@@ -173,7 +173,7 @@ CircularLinkedList* shuffle_players(Vector* players, Sector* sector)
             return NULL;
         }
         player_power->player = player;
-        player_power->power = power;
+        player_power->power = (int) power;
         shuffled_player_power->insert_end(shuffled_player_power, player_power);
     }
 
@@ -219,13 +219,15 @@ Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Ga
             Fleet* i_curr = p_curr->player->find_incoming(p_curr->player, sector);
             int index = sector->incoming->index(sector->incoming, i_curr);
             sector->incoming->remove(sector->incoming, index);
+            i_curr->destroy(i_curr);
 
-            Fleet* i_next = p_curr->player->find_incoming(p_next->player, sector);
+            Fleet* i_next = p_next->player->find_incoming(p_next->player, sector);
             index = sector->incoming->index(sector->incoming, i_next);
             sector->incoming->remove(sector->incoming, index);
+            i_next->destroy(i_next);
         }
 
-        unsigned int power_curr = p_curr->power;
+        int power_curr = p_curr->power;
         p_curr->power -= p_next->power;
         p_next->power -= power_curr;
 
@@ -236,7 +238,7 @@ Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Ga
         if (p_next->power <= 0)
             _remove_defeated(shuffled_player_power, p_next);
 
-        node = node->next;
+        if (node) node = node->next;
     }
 
     Player* winner;
@@ -247,6 +249,7 @@ Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Ga
         winner = NULL;
     } else {
         winner = ((PlayerPower *) shuffled_player_power->head->data)->player;
+        free(shuffled_player_power->head->data);
     }
 
     shuffled_player_power->free(shuffled_player_power);

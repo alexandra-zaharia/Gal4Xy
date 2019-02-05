@@ -182,6 +182,8 @@ void reclaim_lost_colonies(Player* player, Galaxy* galaxy)
  * recapture colonies that have been conquered by other players.
  */
 void ai_strategy(Player* player, Galaxy* galaxy) {
+    if (player->is_retired) return;
+
     Vector* unexplored = find_unexplored_sectors(player, galaxy);
 
     if (unexplored->size > 0) {

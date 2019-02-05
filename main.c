@@ -57,9 +57,6 @@ int main()
             Player* player = galaxy->players->data[i];
             player->play(player, galaxy);
         }
-        /*ai->play(ai, galaxy);
-        ai2->play(ai2, galaxy);
-        ai3->play(ai3, galaxy);*/
         human->play(human, galaxy);
     }
 }

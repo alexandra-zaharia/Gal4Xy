@@ -82,6 +82,11 @@ battle_incoming:
     }
 
     if (i_defeated) {
+        if (i_defeated->power > 0) {
+            assert(i_winner && i_winner->power > 0);
+            i_winner->power -= i_defeated->power;
+            i_defeated->power = 0;
+        }
         assert(i_defeated->power == 0);
         int index_in_incoming = sector->incoming->index(sector->incoming, i_defeated);
         assert (index_in_incoming >= 0);

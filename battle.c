@@ -60,12 +60,12 @@ void player_wins_battle(Player* winner, Player* defeated, Sector* sector, Galaxy
     if (!sector->fleet)
         goto battle_incoming;
 
-    if (sector->fleet->owner != winner) {
+    if (sector->fleet->owner == defeated) {
         i_winner->power -= sector->fleet->power;
         defeated->remove_fleet(defeated, sector->fleet);
         sector->fleet->destroy(sector->fleet);
         sector->fleet = NULL;
-    } else {
+    } else if (sector->fleet->owner == winner) {
         if (sector->fleet->power >= i_defeated->power) {
             sector->fleet->power -= i_defeated->power;
             i_defeated->power = 0;
@@ -102,7 +102,7 @@ battle_incoming:
  */
 void battle_at_tie(Sector* sector) {
     if (sector->fleet) {
-        Player *fleet_owner = sector->fleet->owner;
+        Player* fleet_owner = sector->fleet->owner;
         fleet_owner->remove_fleet(fleet_owner, sector->fleet);
         sector->fleet->destroy(sector->fleet);
         sector->fleet = NULL;
@@ -182,6 +182,27 @@ CircularLinkedList* shuffle_players(Vector* players, Sector* sector)
 
 
 /*
+ * Removes a player's incoming and in place fleets in the given sector, if they exist.
+ */
+void _remove_fleets(PlayerPower* player_power, Sector* sector)
+{
+    Fleet* incoming = player_power->player->find_incoming(player_power->player, sector);
+    if (incoming) {
+        int index = sector->incoming->index(sector->incoming, incoming);
+        sector->incoming->remove(sector->incoming, index);
+        incoming->destroy(incoming);
+    }
+
+    Fleet* in_place = player_power->player->find_fleet(player_power->player, sector);
+    if (in_place) {
+        player_power->player->remove_fleet(player_power->player, in_place);
+        sector->fleet->destroy(sector->fleet);
+        sector->fleet = NULL;
+    }
+}
+
+
+/*
  * Removes a PlayerPower variable from the circular linked list, if it corresponds to a player
  * having lost a 1-vs-1 battle during a confrontation between more than two players.
  */
@@ -216,15 +237,8 @@ Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Ga
         } else if (p_curr->power > p_next->power) {
             player_wins_battle(p_curr->player, p_next->player, sector, galaxy);
         } else {
-            Fleet* i_curr = p_curr->player->find_incoming(p_curr->player, sector);
-            int index = sector->incoming->index(sector->incoming, i_curr);
-            sector->incoming->remove(sector->incoming, index);
-            i_curr->destroy(i_curr);
-
-            Fleet* i_next = p_next->player->find_incoming(p_next->player, sector);
-            index = sector->incoming->index(sector->incoming, i_next);
-            sector->incoming->remove(sector->incoming, index);
-            i_next->destroy(i_next);
+            _remove_fleets(p_curr, sector);
+            _remove_fleets(p_next, sector);
         }
 
         int power_curr = p_curr->power;
@@ -235,8 +249,11 @@ Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Ga
             node = node->prev;
             _remove_defeated(shuffled_player_power, p_curr);
         }
-        if (p_next->power <= 0)
+        if (p_next->power <= 0) {
+            if (node->data == p_next)
+                node = shuffled_player_power->size == 1 ? NULL : node->prev;
             _remove_defeated(shuffled_player_power, p_next);
+        }
 
         if (node) node = node->next;
     }

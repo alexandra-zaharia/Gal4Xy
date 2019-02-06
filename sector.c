@@ -105,11 +105,7 @@ bool conflict(Sector* sector)
  */
 void sector_update(Sector* sector, Galaxy* galaxy)
 {
-    if (conflict(sector)) {
-        notify_battle_header(sector, galaxy);
-        Player* winner = battle(sector, galaxy);
-        notify_battle_summary(winner);
-    }
+    if (conflict(sector)) notify_battle_summary(battle(sector, galaxy));
 
     if (sector->incoming->size == 0) return;
     assert(sector->incoming->size == 1);

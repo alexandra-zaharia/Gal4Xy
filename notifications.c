@@ -70,20 +70,16 @@ void notify_sector_explored(Sector* sector, Planet* home)
 /*
  * Displays information on a battle taking place in the given sector.
  */
-void notify_battle_header(Sector* sector, Galaxy* galaxy)
+void notify_battle_header(Vector* players, Sector* sector)
 {
-    Vector* players = players_in_conflict(sector);
-
     printf("!!!\n!!! Battle in sector (%hu, %hu) between %u players:\n",
             sector->x, sector->y, players->size);
-    for (unsigned int i = 0; i < galaxy->players->size; i++) {
-        Player* player = galaxy->players->data[i];
-        if (players->contains(players, player))
-            printf("!!!\tPlayer %s%c%s: %u total firepower\n",
-                    player->color, player->symbol, RESET, total_firepower(player, sector));
-    }
 
-    players->free(players);
+    for (unsigned int i = 0; i < players->size; i++) {
+        Player* player = players->data[i];
+        printf("!!!\t%sPlayer %c%s: %u total firepower\n",
+                player->color, player->symbol, RESET, total_firepower(player, sector));
+    }
 }
 
 
@@ -93,9 +89,9 @@ void notify_battle_header(Sector* sector, Galaxy* galaxy)
 void notify_battle_summary(Player* winner)
 {
     if (!winner) {
-        printf("!!!\tIt's a tie!\n");
+        printf("!!! It's a tie!\n");
     } else {
-        printf("!!!\tPlayer %s%c%s wins!\n", winner->color, winner->symbol, RESET);
+        printf("!!! %sPlayer %c%s wins!\n", winner->color, winner->symbol, RESET);
     }
     printf("!!!\n");
     notification_header('#');
@@ -107,7 +103,7 @@ void notify_battle_summary(Player* winner)
  */
 void notify_player_eliminated(Player* player)
 {
-    printf("---\n--- Player %s%c%s has been eliminated.\n", player->color, player->symbol, RESET);
+    printf("---\n--- %sPlayer %c%s has been eliminated.\n", player->color, player->symbol, RESET);
     printf("---\n");
     notification_header('#');
 }
@@ -130,7 +126,7 @@ void notify_game_over(Galaxy* galaxy)
             winner = player;
     }
 
-    printf("*** Player %s%c%s conquered the galaxy in %u turns!\n***\n",
+    printf("*** %sPlayer %c%s conquered the galaxy in %u turns!\n***\n",
            winner->color, winner->symbol, BOLDWHITE, galaxy->turn);
 
     notification_header('*');

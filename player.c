@@ -169,19 +169,34 @@ void player_move_fleet(
 
 
 /*
- * Returns the index in the player's list of fleets where a new fleet is to be inserted, such that
- * the player's fleets are sorted by ascending sector coordinates. Returns -1 if the new fleet
- * needs to be inserted at the end of the player's list of fleets.
+ * Enum used for determining whether a new item should be treated as a fleet or a planet to insert
+ * into the player's list of fleets or planets.
  */
-int player_insert_fleet_at_index(Player* player, Fleet* to_insert)
+typedef enum {
+    FLEET,
+    PLANET
+} LIST_TYPE;
+
+
+/*
+ * Returns the index in a linked list where a new item is to be inserted. Only two item types are
+ * possible: Fleet and Planet. The insertion takes place such that all the fleets or planets in the
+ * linked list are sorted by ascending sector coordinates. Returns -1 if the new item needs to be
+ * inserted at the end of the linked list.
+ */
+int get_index_for_insertion(LinkedList* list, LIST_TYPE type, void* to_insert)
 {
     int index = -1;
 
-    for (DNode* node = player->fleets->head; node; node = node->next) {
+    unsigned short int new_x = type == FLEET ? ((Fleet*) to_insert)->x : ((Planet*) to_insert)->x;
+    unsigned short int new_y = type == FLEET ? ((Fleet*) to_insert)->y : ((Planet*) to_insert)->y;
+
+    for (DNode* node = list->head; node; node = node->next) {
         ++index;
-        Fleet* fleet = node->data;
-        if (to_insert->x < fleet->x) return index;
-        if (to_insert->x == fleet->x && to_insert->y < fleet->y) return index;
+        unsigned short int x = type == FLEET ? ((Fleet*) node->data)->x : ((Planet*) node->data)->x;
+        unsigned short int y = type == FLEET ? ((Fleet*) node->data)->y : ((Planet*) node->data)->y;
+        if (new_x < x) return index;
+        if (new_x == x && new_y < y) return index;
     }
 
     return -1;
@@ -194,7 +209,7 @@ int player_insert_fleet_at_index(Player* player, Fleet* to_insert)
  */
 void player_add_fleet(Player* player, Fleet* fleet)
 {
-    int index = player_insert_fleet_at_index(player, fleet);
+    int index = get_index_for_insertion(player->fleets, FLEET, fleet);
     if (index < 0) {
         player->fleets->insert_end(player->fleets, fleet);
     } else {
@@ -215,32 +230,12 @@ void player_remove_fleet(Player* player, Fleet* fleet)
 
 
 /*
- * Returns the index in the player's list of planets where a new planet is to be inserted, such
- * that the player's planets are sorted by ascending sector coordinates. Returns -1 if the new
- * planet needs to be inserted at the end of the player's list of planets.
- */
-int player_insert_planet_at_index(Player* player, Planet* to_insert)
-{
-    int index = -1;
-
-    for (DNode* node = player->planets->head; node; node = node->next) {
-        ++index;
-        Planet* planet = node->data;
-        if (to_insert->x < planet->x) return index;
-        if (to_insert->x == planet->x && to_insert->y < planet->y) return index;
-    }
-
-    return -1;
-}
-
-
-/*
  * Adds a new planet to the player's list of planets, such that the player's planets are sorted by
  * ascending sector coordinates.
  */
 void player_add_planet(Player* player, Planet* planet)
 {
-    int index = player_insert_planet_at_index(player, planet);
+    int index = get_index_for_insertion(player->planets, PLANET, planet);
     if (index < 0) {
         player->planets->insert_end(player->planets, planet);
     } else {

@@ -181,10 +181,7 @@ int player_insert_fleet_at_index(Player* player, Fleet* to_insert)
         ++index;
         Fleet* fleet = node->data;
         if (to_insert->x < fleet->x) return index;
-        if (to_insert->x == fleet->x) {
-            if (to_insert->y < fleet->y) return index;
-            return index + 1;
-        }
+        if (to_insert->x == fleet->x && to_insert->y < fleet->y) return index;
     }
 
     return -1;
@@ -230,10 +227,7 @@ int player_insert_planet_at_index(Player* player, Planet* to_insert)
         ++index;
         Planet* planet = node->data;
         if (to_insert->x < planet->x) return index;
-        if (to_insert->x == planet->x) {
-            if (to_insert->y < planet->y) return index;
-            return index + 1;
-        }
+        if (to_insert->x == planet->x && to_insert->y < planet->y) return index;
     }
 
     return -1;

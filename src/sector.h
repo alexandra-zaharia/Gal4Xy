@@ -22,7 +22,7 @@ struct Sector {
 
     bool has_planet;                  // does this sector contain a planet?
     union {
-        unsigned short int res_bonus; // bonus resources for exploration if no planet in sector
+        unsigned int res_bonus;       // bonus resources for exploration if no planet in sector
         Planet* planet;               // the planet, if applicable
     };
 

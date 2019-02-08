@@ -5,7 +5,7 @@
 #ifndef GAL4XY_PLAYER_H
 #define GAL4XY_PLAYER_H
 
-#include "include/linked_list.h"
+#include "linked_list.h"
 #include "galaxy.h"
 #include "color.h"
 

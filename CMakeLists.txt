@@ -8,16 +8,16 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 include_directories(include lib)
 
 add_executable(Gal4Xy
-        main.c
-        galaxy.c
-        sector.c
-        utils.c
-        io.c
-        notifications.c
-        planet.c
-        player.c
-        fleet.c
-        ai.c battle.c battle.h)
+        src/main.c
+        src/galaxy.c
+        src/sector.c
+        src/utils.c
+        src/io.c
+        src/notifications.c
+        src/planet.c
+        src/player.c
+        src/fleet.c
+        src/ai.c src/battle.c src/battle.h)
 
 target_link_libraries(Gal4Xy ${CMAKE_SOURCE_DIR}/lib/libgcds.a m)
 

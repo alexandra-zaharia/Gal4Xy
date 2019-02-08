@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
-#include "include/vector.h"
+#include "vector.h"
 #include "galaxy.h"
 #include "utils.h"
 #include "io.h"

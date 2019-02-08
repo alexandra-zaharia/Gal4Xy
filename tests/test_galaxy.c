@@ -9,9 +9,9 @@
 #include <cmocka.h>
 #include <stdlib.h>
 
-#include "galaxy.h"
-#include "player.h"
-#include "ai.h"
+#include "src/galaxy.h"
+#include "src/player.h"
+#include "src/ai.h"
 #include "vector.h"
 
 // Fixtures --------------------------------------------------------------------

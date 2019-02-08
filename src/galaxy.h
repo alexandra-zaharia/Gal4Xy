@@ -6,7 +6,7 @@
 #define GAL4XY_GALAXY_H
 
 #include <stdbool.h>
-#include "include/vector.h"
+#include "vector.h"
 #include "sector.h"
 
 #define SIZE 10            // galaxy size is SIZE x SIZE

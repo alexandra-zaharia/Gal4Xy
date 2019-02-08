@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include "include/vector.h"
+#include "vector.h"
 #include "galaxy.h"
 #include "player.h"
 #include "ai.h"

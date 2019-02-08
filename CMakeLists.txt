@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10)
 project(Gal4Xy C)
 
 set(CMAKE_C_STANDARD 11)
@@ -20,3 +20,5 @@ add_executable(Gal4Xy
         ai.c battle.c battle.h)
 
 target_link_libraries(Gal4Xy ${CMAKE_SOURCE_DIR}/lib/libgcds.a m)
+
+add_subdirectory(tests)

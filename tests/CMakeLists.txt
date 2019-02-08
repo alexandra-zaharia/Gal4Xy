@@ -16,7 +16,7 @@ set(GALAXY_SOURCES
 		../src/utils.c)
 
 add_executable(test_galaxy ${TEST_SOURCES} ${GALAXY_SOURCES})
-target_include_directories(test_galaxy PRIVATE .. ../include)
+target_include_directories(test_galaxy PRIVATE ../src ../include)
 
 find_library(GCDS gcds HINTS ../lib)
 target_link_libraries(test_galaxy PUBLIC ${GCDS} cmocka m)

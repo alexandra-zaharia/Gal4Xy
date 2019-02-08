@@ -57,6 +57,7 @@ void prompt_move_ships(Player* player, Galaxy* galaxy)
 {
     int sx, sy, tx, ty, n;
     bool read_five_values = false;
+    bool token_read = false;
 
     printf("\nFrom which sector, to which sector, and how many fleet units "
            "do you wish to move?\n");
@@ -97,11 +98,17 @@ void prompt_move_ships(Player* player, Galaxy* galaxy)
         }
 
         token = strtok(NULL, " ");
+        token_read = true;
     }
 
     free(buffer);
 
-    if (read_five_values) player->move_fleet(player, galaxy, sx, sy, tx, ty, n);
+    if (read_five_values) {
+        player->move_fleet(player, galaxy, sx, sy, tx, ty, n);
+    } else if (token_read) {
+        fprintf(stderr, "Could not read five values. Please retry.\n");
+    }
+
 }
 
 

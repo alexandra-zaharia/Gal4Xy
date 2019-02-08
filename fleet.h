@@ -14,7 +14,6 @@ struct Fleet {
     Player* owner;            // fleet owner
     unsigned int power;       // the fleet's total firepower
 
-    void (*move)(Fleet*, unsigned short int, unsigned short int, unsigned int); // moves the fleet
     void (*destroy)(Fleet*);  // frees the fleet
 };
 

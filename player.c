@@ -126,6 +126,12 @@ bool is_move_valid(Player* player, Galaxy* galaxy,
 
 /*
  * Attempts to move a player's fleet of specified power, from sector (sx, sy) to sector (tx, ty).
+ *
+ * The fleet is not actually moved during the current turn, but marked as incoming fleet for the
+ * next turn.
+ *
+ * If the firepower of the initial fleet is zero after moving a quantity of 'power' to the specified
+ * sector, the initial fleet is de-allocated.
  */
 void player_move_fleet(
         Player* player, Galaxy* galaxy, int _sx, int _sy, int _tx, int _ty, int _power)

@@ -8,21 +8,6 @@
 
 
 /*
- * Moves a specified firepower from a fleet to a specified sector.
- *
- * The fleet is not actually moved during the current turn, but marked as incoming fleet for the
- * next turn.
- *
- * If the firepower of the initial fleet is zero after moving a quantity of 'power' to the specified
- * sector, the initial fleet is de-allocated.
- */
-void fleet_move(Fleet* fleet, unsigned short int x, unsigned short int y, unsigned int power)
-{
-    printf("%s: not implemented\n", __func__);
-}
-
-
-/*
  * Frees the fleet.
  */
 void fleet_free(Fleet* fleet)
@@ -50,7 +35,6 @@ Fleet* fleet_create(unsigned short int x, unsigned short int y, Player* owner, u
     fleet->owner = owner;
     fleet->power = power;
 
-    fleet->move = fleet_move;
     fleet->destroy = fleet_free;
 
     return fleet;

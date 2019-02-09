@@ -259,8 +259,8 @@ void player_remove_planet(Player* player, Planet* planet, Galaxy* galaxy)
     int index = player->planets->index(player->planets, planet);
     assert(index >= 0);
     player->planets->remove_at(player->planets, index);
-    if (get_player_index(player, galaxy) == 0) // notify human player that a planet has been lost
-        notify_planet_lost(planet);
+    if (galaxy->players->index(galaxy->players, player) == 0) // notify human player
+        notify_planet_lost(planet);                           // that a planet has been lost
 
     if (player->home_planet == planet) {
         player->reassign_home_planet(player);
@@ -306,7 +306,7 @@ void player_build_ships(Player* player, Galaxy* galaxy)
             planet->res_total -= (unsigned short int) (power * UNIT_COST);
 
             // Notify the human player that ships were built
-            if (get_player_index(player, galaxy) == 0)
+            if (galaxy->players->index(galaxy->players, player) == 0)
                 notify_ships_built(sector, power);
         }
     }

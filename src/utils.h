@@ -11,6 +11,5 @@
 unsigned short int random_number(unsigned short int min, unsigned short int max);
 void shuffle(void**, unsigned int);
 bool has_incoming_fleet(Sector*, Player*);
-unsigned int get_player_index(Player*, Galaxy*);
 
 #endif //GAL4XY_UTILS_H

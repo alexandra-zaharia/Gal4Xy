@@ -3,7 +3,6 @@
 //
 
 #include <stdlib.h>
-#include <stdio.h> // TODO
 #include <assert.h>
 #include "battle.h"
 #include "player.h"
@@ -11,7 +10,6 @@
 #include "utils.h"
 #include "notifications.h"
 #include "circular_linked_list.h"
-#include "io.h" // TODO
 
 
 /*
@@ -97,7 +95,7 @@ battle_incoming:
 
     // Mark sector as explored if the defeated player is human, and if the sector contains a planet
     // (for display purposes).
-    unsigned int defeated_index = get_player_index(defeated, galaxy);
+    int defeated_index = galaxy->players->index(galaxy->players, defeated);
     if (defeated_index == 0 && sector->has_planet)
         sector->mark_explored(sector, defeated, galaxy);
 }

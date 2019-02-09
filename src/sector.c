@@ -49,7 +49,7 @@ void sector_free(Sector* sector)
  */
 bool sector_is_explored(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     return (bool) sector->explored->data[player_index];
 }
 
@@ -59,7 +59,7 @@ bool sector_is_explored(Sector* sector, Player* player, Galaxy* galaxy)
  */
 void sector_mark_explored(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     sector->explored->data[player_index] = (void*) true;
 }
 
@@ -69,7 +69,7 @@ void sector_mark_explored(Sector* sector, Player* player, Galaxy* galaxy)
  */
 bool sector_is_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     return (bool) sector->tie->data[player_index];
 }
 
@@ -79,7 +79,7 @@ bool sector_is_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
  */
 void sector_mark_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     sector->tie->data[player_index] = (void*) true;
 }
 
@@ -132,7 +132,7 @@ void sector_update(Sector* sector, Galaxy* galaxy)
             sector->planet->owner = owner;
             owner->add_planet(owner, sector->planet);
 
-            if (get_player_index(owner, galaxy) == 0)
+            if (galaxy->players->index(galaxy->players, owner) == 0)
                 notify_planet_colonized(sector);
 
             // The planet had been owned by another player but left undefended
@@ -145,7 +145,7 @@ void sector_update(Sector* sector, Galaxy* galaxy)
         Planet *home = owner->home_planet;
         home->res_total += sector->res_bonus;
 
-        if (get_player_index(owner, galaxy) == 0)
+        if (galaxy->players->index(galaxy->players, owner) == 0)
             notify_sector_explored(sector, home);
 
         sector->res_bonus = 0;

@@ -105,7 +105,20 @@ bool conflict(Sector* sector)
  */
 void sector_update(Sector* sector, Galaxy* galaxy)
 {
-    if (conflict(sector)) notify_battle_summary(battle(sector, galaxy));
+    if (conflict(sector)) {
+        Vector* battling = players_in_conflict(sector);
+
+        if (battling->size > 2)
+            shuffle(battling->data, battling->size);
+        if (battling->contains(battling, galaxy->players->data[0]))
+            notify_battle_header(battling, sector);
+
+        Player* winner = battle(sector, galaxy);
+        if (battling->contains(battling, galaxy->players->data[0]))
+            notify_battle_summary(winner);
+
+        battling->free(battling);
+    }
 
     if (sector->incoming->size == 0) return;
     assert(sector->incoming->size == 1);

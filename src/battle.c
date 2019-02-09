@@ -7,7 +7,6 @@
 #include "battle.h"
 #include "player.h"
 #include "error.h"
-#include "utils.h"
 #include "notifications.h"
 #include "circular_linked_list.h"
 
@@ -182,7 +181,7 @@ CircularLinkedList* get_battling_players(Vector* players, Sector* sector)
 
 
 /*
- * Removes a player's incoming and in place fleets in the given sector, if they exist.
+ * Removes a player's incoming and in-place fleets in the given sector, if they exist.
  */
 void _remove_fleets(BattlingPlayer* battling_player, Sector* sector)
 {
@@ -215,8 +214,8 @@ void _remove_defeated(CircularLinkedList* battling_players, BattlingPlayer* batt
 
 
 /*
- * Handles a battle between more than two players in the given sector. Returns the winner or NULL in
- * case the players battle to tie.
+ * Handles a battle between more than two players in the given sector. Returns the winner or NULL if
+ * the players battle to tie.
  */
 Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {
@@ -282,14 +281,9 @@ Player* battle(Sector* sector, Galaxy* galaxy)
     Vector* players = players_in_conflict(sector);
     Player* winner = NULL;
 
-    if (players->size == 2) {
-        notify_battle_header(players, sector);
-        winner = battle_between_two_players(players, sector, galaxy);
-    } else {
-        shuffle(players->data, players->size); // random order for attack
-        notify_battle_header(players, sector);
-        winner = battle_between_more_than_two_players(players, sector, galaxy);
-    }
+    winner = players->size == 2
+             ? battle_between_two_players(players, sector, galaxy)
+             : battle_between_more_than_two_players(players, sector, galaxy);
 
     players->free(players);
     return winner;

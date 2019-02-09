@@ -274,17 +274,14 @@ Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Ga
 
 
 /*
- * Handles a battle in the given sector. Returns the winner or NULL if the players battle to tie.
+ * Handles a conflict in the given sector between the battling players. Returns the winner or NULL
+ * if the players battle to tie.
  */
-Player* battle(Sector* sector, Galaxy* galaxy)
+Player* battle(Vector* battling, Sector* sector, Galaxy* galaxy)
 {
-    Vector* players = players_in_conflict(sector);
-    Player* winner = NULL;
-
-    winner = players->size == 2
-             ? battle_between_two_players(players, sector, galaxy)
-             : battle_between_more_than_two_players(players, sector, galaxy);
-
-    players->free(players);
+    Player* winner = battling->size == 2
+                     ? battle_between_two_players(battling, sector, galaxy)
+                     : battle_between_more_than_two_players(battling, sector, galaxy);
+    battling->free(battling);
     return winner;
 }

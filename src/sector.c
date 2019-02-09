@@ -110,14 +110,16 @@ void sector_update(Sector* sector, Galaxy* galaxy)
 
         if (battling->size > 2)
             shuffle(battling->data, battling->size);
-        if (battling->contains(battling, galaxy->players->data[0]))
+
+        bool human_involved = false;
+        if (battling->contains(battling, galaxy->players->data[0])) {
             notify_battle_header(battling, sector);
+            human_involved = true;
+        }
 
-        Player* winner = battle(sector, galaxy);
-        if (battling->contains(battling, galaxy->players->data[0]))
+        Player* winner = battle(battling, sector, galaxy);
+        if (human_involved)
             notify_battle_summary(winner);
-
-        battling->free(battling);
     }
 
     if (sector->incoming->size == 0) return;

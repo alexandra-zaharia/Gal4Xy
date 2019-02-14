@@ -3,15 +3,12 @@
 //
 
 #include <stdlib.h>
-#include <stdio.h> // TODO
 #include <assert.h>
 #include "battle.h"
 #include "player.h"
 #include "error.h"
-#include "utils.h"
 #include "notifications.h"
 #include "circular_linked_list.h"
-#include "io.h" // TODO
 
 
 /*
@@ -97,7 +94,7 @@ battle_incoming:
 
     // Mark sector as explored if the defeated player is human, and if the sector contains a planet
     // (for display purposes).
-    unsigned int defeated_index = get_player_index(defeated, galaxy);
+    int defeated_index = galaxy->players->index(galaxy->players, defeated);
     if (defeated_index == 0 && sector->has_planet)
         sector->mark_explored(sector, defeated, galaxy);
 }
@@ -184,7 +181,7 @@ CircularLinkedList* get_battling_players(Vector* players, Sector* sector)
 
 
 /*
- * Removes a player's incoming and in place fleets in the given sector, if they exist.
+ * Removes a player's incoming and in-place fleets in the given sector, if they exist.
  */
 void _remove_fleets(BattlingPlayer* battling_player, Sector* sector)
 {
@@ -217,8 +214,8 @@ void _remove_defeated(CircularLinkedList* battling_players, BattlingPlayer* batt
 
 
 /*
- * Handles a battle between more than two players in the given sector. Returns the winner or NULL in
- * case the players battle to tie.
+ * Handles a battle between more than two players in the given sector. Returns the winner or NULL if
+ * the players battle to tie.
  */
 Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Galaxy* galaxy)
 {
@@ -277,22 +274,14 @@ Player* battle_between_more_than_two_players(Vector* players, Sector* sector, Ga
 
 
 /*
- * Handles a battle in the given sector. Returns the winner or NULL if the players battle to tie.
+ * Handles a conflict in the given sector between the battling players. Returns the winner or NULL
+ * if the players battle to tie.
  */
-Player* battle(Sector* sector, Galaxy* galaxy)
+Player* battle(Vector* battling, Sector* sector, Galaxy* galaxy)
 {
-    Vector* players = players_in_conflict(sector);
-    Player* winner = NULL;
-
-    if (players->size == 2) {
-        notify_battle_header(players, sector);
-        winner = battle_between_two_players(players, sector, galaxy);
-    } else {
-        shuffle(players->data, players->size); // random order for attack
-        notify_battle_header(players, sector);
-        winner = battle_between_more_than_two_players(players, sector, galaxy);
-    }
-
-    players->free(players);
+    Player* winner = battling->size == 2
+                     ? battle_between_two_players(battling, sector, galaxy)
+                     : battle_between_more_than_two_players(battling, sector, galaxy);
+    battling->free(battling);
     return winner;
 }

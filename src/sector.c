@@ -49,7 +49,7 @@ void sector_free(Sector* sector)
  */
 bool sector_is_explored(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     return (bool) sector->explored->data[player_index];
 }
 
@@ -59,7 +59,7 @@ bool sector_is_explored(Sector* sector, Player* player, Galaxy* galaxy)
  */
 void sector_mark_explored(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     sector->explored->data[player_index] = (void*) true;
 }
 
@@ -69,7 +69,7 @@ void sector_mark_explored(Sector* sector, Player* player, Galaxy* galaxy)
  */
 bool sector_is_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     return (bool) sector->tie->data[player_index];
 }
 
@@ -79,7 +79,7 @@ bool sector_is_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
  */
 void sector_mark_at_tie(Sector* sector, Player* player, Galaxy* galaxy)
 {
-    unsigned int player_index = get_player_index(player, galaxy);
+    int player_index = galaxy->players->index(galaxy->players, player);
     sector->tie->data[player_index] = (void*) true;
 }
 
@@ -105,7 +105,22 @@ bool conflict(Sector* sector)
  */
 void sector_update(Sector* sector, Galaxy* galaxy)
 {
-    if (conflict(sector)) notify_battle_summary(battle(sector, galaxy));
+    if (conflict(sector)) {
+        Vector* battling = players_in_conflict(sector);
+
+        if (battling->size > 2)
+            shuffle(battling->data, battling->size);
+
+        bool human_involved = false;
+        if (battling->contains(battling, galaxy->players->data[0])) {
+            notify_battle_header(battling, sector);
+            human_involved = true;
+        }
+
+        Player* winner = battle(battling, sector, galaxy);
+        if (human_involved)
+            notify_battle_summary(winner);
+    }
 
     if (sector->incoming->size == 0) return;
     assert(sector->incoming->size == 1);
@@ -132,7 +147,7 @@ void sector_update(Sector* sector, Galaxy* galaxy)
             sector->planet->owner = owner;
             owner->add_planet(owner, sector->planet);
 
-            if (get_player_index(owner, galaxy) == 0)
+            if (galaxy->players->index(galaxy->players, owner) == 0)
                 notify_planet_colonized(sector);
 
             // The planet had been owned by another player but left undefended
@@ -145,7 +160,7 @@ void sector_update(Sector* sector, Galaxy* galaxy)
         Planet *home = owner->home_planet;
         home->res_total += sector->res_bonus;
 
-        if (get_player_index(owner, galaxy) == 0)
+        if (galaxy->players->index(galaxy->players, owner) == 0)
             notify_sector_explored(sector, home);
 
         sector->res_bonus = 0;

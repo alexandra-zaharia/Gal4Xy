@@ -9,6 +9,6 @@
 
 Vector* players_in_conflict(Sector*);
 unsigned int total_firepower(Player*, Sector*);
-Player* battle(Sector*, Galaxy*);
+Player* battle(Vector*, Sector*, Galaxy*);
 
 #endif //GAL4XY_BATTLE_H

@@ -17,7 +17,8 @@ add_executable(Gal4Xy
         src/planet.c
         src/player.c
         src/fleet.c
-        src/ai.c src/battle.c src/battle.h)
+        src/ai.c
+        src/battle.c)
 
 target_link_libraries(Gal4Xy ${CMAKE_SOURCE_DIR}/lib/libgcds.a m)
 

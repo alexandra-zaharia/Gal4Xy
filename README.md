@@ -20,7 +20,7 @@ You will need `gcc`, `cmake`, and `make` to build and run the game.
 First, clone this repository and `cd` into it:
 
 ```
-https://github.com/alexandra-zaharia/Gal4Xy.git
+git clone https://github.com/alexandra-zaharia/Gal4Xy.git
 cd Gal4Xy
 ```
 
